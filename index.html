@@ -3,346 +3,381 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PrestoLabs | 48시간 안에 아이디어를 작동하는 결과물로</title>
+    <title>PrestoLabs | 아이디어를 빠르게 실행하는 IT 서비스 매칭</title>
     <meta
       name="description"
-      content="아이디어만 적어주세요. PrestoLabs가 AI로 기획을 정리하고, 가장 적합한 실행자를 매칭해 48시간 안에 작동하는 결과물로 연결합니다."
+      content="아이디어만 적으면 AI가 요구사항을 정리하고, 적합한 전문가를 매칭해 48시간 안에 작동하는 MVP로 연결합니다."
     />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <div class="page-shell">
+    <div class="site-shell">
       <header class="topbar">
-        <a class="brand" href="#home">
-          <span class="brand-mark">P</span>
-          <span class="brand-copy">
-            <strong>PrestoLabs</strong>
-            <small>AI MVP Delivery Platform</small>
-          </span>
-        </a>
-        <nav class="topnav">
-          <a href="#service">서비스</a>
-          <a href="#flow">프로세스</a>
-          <a href="#packages">패키지</a>
-          <a href="#trust">신뢰 장치</a>
-        </nav>
-        <a class="nav-cta" href="#cta">아이디어 시작하기</a>
+        <div class="container topbar-inner">
+          <a class="brand" href="#home">
+            <span class="brand-mark">P</span>
+            <span class="brand-copy">
+              <strong>PrestoLabs</strong>
+              <small>AI MVP Matching</small>
+            </span>
+          </a>
+
+          <nav class="topnav">
+            <a href="#categories">서비스</a>
+            <a href="#experts">고수찾기</a>
+            <a href="#stories">사례</a>
+            <a href="#trust">안전거래</a>
+          </nav>
+
+          <div class="top-actions">
+            <button class="ghost-btn" type="button">고수 가입</button>
+            <a class="primary-btn" href="#request">견적 요청</a>
+          </div>
+        </div>
       </header>
 
       <main id="home">
-        <section class="hero section-grid">
-          <div class="hero-copy">
-            <p class="eyebrow">48-hour MVP execution for non-technical founders</p>
-            <h1>
-              아이디어를 현실로,<br />
-              <span>뚝딱 한 번에.</span>
-            </h1>
-            <p class="hero-text">
-              PrestoLabs는 AI로 요구사항을 정리하고, 가장 적합한 실행자를 매칭해
-              기획부터 개발, 검수와 출시 직전 전달까지 한 흐름으로 연결하는 팀형 AI MVP 제작 플랫폼입니다.
-            </p>
+        <section class="hero">
+          <div class="container hero-grid">
+            <div class="hero-copy">
+              <p class="eyebrow">IT 외주, MVP 제작, 자동화 구축을 한 번에</p>
+              <h1>어떤 IT 서비스를 만들고 싶으세요?</h1>
+              <p class="hero-text">
+                PrestoLabs는 아이디어만 입력하면 AI가 요구사항을 정리하고,
+                가장 적합한 전문가를 연결해 빠르게 실행하는 IT 서비스 매칭 플랫폼입니다.
+              </p>
 
-            <div class="hero-badge-row">
-              <span>AI 기반 기획</span>
-              <span>빠른 실행</span>
-              <span>원스톱 솔루션</span>
-            </div>
+              <form class="hero-search" id="service-search-form">
+                <label class="sr-only" for="service-search">원하는 서비스를 검색하세요</label>
+                <input
+                  id="service-search"
+                  type="search"
+                  placeholder="예: 랜딩페이지 제작, 예약 시스템, 업무 자동화"
+                />
+                <button type="submit">검색</button>
+              </form>
 
-            <div class="hero-actions">
-              <a class="btn btn-primary" href="#cta">내 아이디어 시작하기</a>
-              <a class="btn btn-secondary" href="#service">서비스 구조 보기</a>
-            </div>
+              <div class="quick-keywords">
+                <button class="keyword-chip" type="button" data-service="landing">랜딩페이지</button>
+                <button class="keyword-chip" type="button" data-service="automation">업무 자동화</button>
+                <button class="keyword-chip" type="button" data-service="admin">관리자 페이지</button>
+                <button class="keyword-chip" type="button" data-service="mvp">MVP 개발</button>
+              </div>
 
-            <div class="stat-row">
-              <article class="stat-card">
-                <span>핵심 약속</span>
-                <strong>48시간 실행</strong>
-              </article>
-              <article class="stat-card">
-                <span>핵심 방식</span>
-                <strong>AI 기획 정리</strong>
-              </article>
-              <article class="stat-card">
-                <span>신뢰 구조</span>
-                <strong>에스크로 검수</strong>
-              </article>
-            </div>
-          </div>
-
-          <div class="hero-panel">
-            <div class="panel-window">
-              <div class="poster-stage">
-                <img src="./assets/poster-prestolabs.png" alt="뚝딱 연구소 팀 포스터" class="poster-image" />
-                <div class="floating-card fc-left">
-                  <small>AI PLAN</small>
-                  <strong>Problem → Idea → Build</strong>
-                </div>
-                <div class="floating-card fc-right">
-                  <small>Launch Mode</small>
-                  <strong>48시간 실행 프로세스</strong>
-                </div>
-                <div class="floating-card fc-bottom">
-                  <small>Team Synergy</small>
-                  <strong>기획 · 디자인 · 프론트 · 백엔드</strong>
-                </div>
+              <div class="hero-stats">
+                <article>
+                  <strong>48시간</strong>
+                  <span>평균 초기 실행 기준</span>
+                </article>
+                <article>
+                  <strong>AI 요구사항 정리</strong>
+                  <span>비개발자도 바로 시작</span>
+                </article>
+                <article>
+                  <strong>안전한 검수</strong>
+                  <span>체크리스트 기반 승인</span>
+                </article>
               </div>
             </div>
-          </div>
-        </section>
 
-        <section id="service" class="section">
-          <div class="section-heading">
-            <p class="eyebrow">Service Structure</p>
-            <h2>팀 문서를 하나로 묶은 최종 서비스 구조</h2>
-            <p>
-              PrestoLabs는 `아이디어만 있어도 시작 가능`, `48시간 실행`, `안전한 검수와 정산`
-              세 축을 기준으로 통합되었습니다.
-            </p>
-          </div>
-
-          <div class="pillars">
-            <article class="pillar-card tone-blue">
-              <span class="pillar-index">01</span>
-              <h3>AI 기획 번역</h3>
-              <p>
-                사용자의 자연어 아이디어를 기능, 범위, 제외 항목, 추천 결과물로 정리해
-                개발 가능한 요구사항 문서로 변환합니다.
-              </p>
-            </article>
-            <article class="pillar-card tone-sand">
-              <span class="pillar-index">02</span>
-              <h3>48시간 MVP 실행</h3>
-              <p>
-                복잡한 외주가 아니라 핵심 기능이 실제로 작동하는 MVP에 집중합니다.
-                큰 프로젝트는 뚝딱 단위로 확장합니다.
-              </p>
-            </article>
-            <article class="pillar-card tone-mint">
-              <span class="pillar-index">03</span>
-              <h3>체크리스트 기반 검수</h3>
-              <p>
-                요구사항 확정, 에스크로 결제, 검수 체크리스트, 진행 상태 공유를 통해
-                의뢰자와 실행자 모두의 불안을 줄입니다.
-              </p>
-            </article>
-          </div>
-        </section>
-
-        <section class="section value-strip">
-          <article>
-            <strong>AI 기반 기획</strong>
-            <span>아이디어를 전략으로 정리</span>
-          </article>
-          <article>
-            <strong>빠른 실행력</strong>
-            <span>눈앞의 아이디어를 빠르게 구현</span>
-          </article>
-          <article>
-            <strong>원스톱 솔루션</strong>
-            <span>기획부터 출시 직전 전달까지</span>
-          </article>
-          <article>
-            <strong>팀워크 시너지</strong>
-            <span>협업으로 더 큰 결과를 만듭니다</span>
-          </article>
-        </section>
-
-        <section id="flow" class="section section-split">
-          <div class="section-heading">
-            <p class="eyebrow">User Flow</p>
-            <h2>아이디어에서 결과물까지 이어지는 6단계</h2>
-          </div>
-
-          <div class="journey-grid">
-            <div class="journey-column">
-              <h3>의뢰인 여정</h3>
-              <ol class="journey-list">
-                <li>
-                  <strong>아이디어 입력</strong>
-                  <p>막연한 아이디어를 자연어로 입력합니다.</p>
-                </li>
-                <li>
-                  <strong>AI 분석 확인</strong>
-                  <p>핵심 기능, 범위, 추천 방식, 예상 기간을 검토합니다.</p>
-                </li>
-                <li>
-                  <strong>실행자 선택</strong>
-                  <p>추천 전문가 또는 패키지를 비교하고 결정합니다.</p>
-                </li>
-                <li>
-                  <strong>결제 및 시작</strong>
-                  <p>에스크로 결제 후 48시간 카운트가 시작됩니다.</p>
-                </li>
-                <li>
-                  <strong>진행 확인</strong>
-                  <p>남은 시간, 채팅, 중간 산출물을 한 화면에서 봅니다.</p>
-                </li>
-                <li>
-                  <strong>검수 및 승인</strong>
-                  <p>체크리스트 기반으로 결과물을 확인하고 완료합니다.</p>
-                </li>
-              </ol>
-            </div>
-
-            <div class="journey-column">
-              <h3>실행자 여정</h3>
-              <ol class="journey-list">
-                <li>
-                  <strong>프로필 등록</strong>
-                  <p>전문 분야, 도구, 포트폴리오, 작업 가능 시간을 설정합니다.</p>
-                </li>
-                <li>
-                  <strong>추천 프로젝트 확인</strong>
-                  <p>AI가 매칭한 프로젝트를 보고 참여 여부를 결정합니다.</p>
-                </li>
-                <li>
-                  <strong>참여 또는 제안</strong>
-                  <p>패키지 수행 또는 커스텀 제안서를 제출합니다.</p>
-                </li>
-                <li>
-                  <strong>작업 진행</strong>
-                  <p>정리된 요구사항서를 기반으로 빠르게 구현합니다.</p>
-                </li>
-                <li>
-                  <strong>중간 공유</strong>
-                  <p>진행 상황과 산출물을 단계적으로 공유합니다.</p>
-                </li>
-                <li>
-                  <strong>제출 및 정산</strong>
-                  <p>검수 완료 후 안전하게 정산됩니다.</p>
-                </li>
-              </ol>
-            </div>
-          </div>
-        </section>
-
-        <section id="packages" class="section">
-          <div class="section-heading">
-            <p class="eyebrow">Dual Track</p>
-            <h2>패키지형과 커스텀형을 함께 운영합니다</h2>
-            <p>빠른 전환이 필요한 고객과 맞춤형 실행이 필요한 고객을 동시에 수용하는 구조입니다.</p>
-          </div>
-
-          <div class="track-grid">
-            <article class="track-card">
-              <div class="track-head">
-                <span>Track A</span>
-                <h3>빠른 패키지형</h3>
+            <aside class="request-panel" id="request">
+              <div class="request-head">
+                <div>
+                  <p class="panel-label">AI 견적 요청</p>
+                  <h2>원하는 서비스 요청서 만들기</h2>
+                </div>
+                <span class="status-badge">3분 완성</span>
               </div>
-              <p>반복 수요가 많은 서비스를 표준 상품으로 제공합니다.</p>
-              <ul>
-                <li>랜딩페이지 제작</li>
-                <li>예약/문의 관리 시스템</li>
-                <li>구글시트 및 노션 자동화</li>
-                <li>내부 업무 도구</li>
-              </ul>
-            </article>
 
-            <article class="track-card featured">
-              <div class="track-head">
-                <span>Track B</span>
-                <h3>커스텀 매칭형</h3>
+              <div class="request-steps">
+                <button class="step-chip is-active" type="button" data-step="idea">1. 서비스 선택</button>
+                <button class="step-chip" type="button" data-step="budget">2. 예산 범위</button>
+                <button class="step-chip" type="button" data-step="deadline">3. 희망 일정</button>
               </div>
-              <p>AI가 기획을 정리하고, 가장 적합한 실행자 또는 스쿼드를 추천합니다.</p>
-              <ul>
-                <li>자연어 기반 아이디어 접수</li>
-                <li>AI 요구사항 초안</li>
-                <li>추천 실행자 카드</li>
-                <li>체크리스트 기반 검수</li>
-              </ul>
-            </article>
-          </div>
-        </section>
 
-        <section id="trust" class="section trust-section">
-          <div class="section-heading">
-            <p class="eyebrow">Trust Layer</p>
-            <h2>PrestoLabs가 거래를 안전하게 만드는 방식</h2>
-          </div>
-
-          <div class="trust-grid">
-            <article>
-              <h3>요구사항 합의</h3>
-              <p>AI가 작성한 문서를 바탕으로 작업 범위와 제외 범위를 명확히 합니다.</p>
-            </article>
-            <article>
-              <h3>에스크로 결제</h3>
-              <p>작업 전 결제하되, 검수 전에는 정산되지 않도록 설계합니다.</p>
-            </article>
-            <article>
-              <h3>체크리스트 검수</h3>
-              <p>감정이 아니라 합의된 기능 목록을 기준으로 결과물을 확인합니다.</p>
-            </article>
-            <article>
-              <h3>진행 상태 가시화</h3>
-              <p>남은 시간, 상태, 파일, 메시지를 한 화면에서 확인할 수 있습니다.</p>
-            </article>
-          </div>
-        </section>
-
-        <section class="section comparison-section">
-          <div class="section-heading">
-            <p class="eyebrow">Positioning</p>
-            <h2>기존 프리랜서 플랫폼과 다른 점</h2>
-          </div>
-
-          <div class="comparison-table">
-            <div class="row head">
-              <span>항목</span>
-              <span>기존 플랫폼</span>
-              <span>PrestoLabs</span>
-            </div>
-            <div class="row">
-              <span>시작 방식</span>
-              <span>전문가 직접 검색</span>
-              <span>아이디어만 입력</span>
-            </div>
-            <div class="row">
-              <span>기획 지원</span>
-              <span>직접 정리</span>
-              <span>AI 요구사항 자동 정리</span>
-            </div>
-            <div class="row">
-              <span>진행 체감</span>
-              <span>메시지 협의 중심</span>
-              <span>카운트다운 + 단계 표시</span>
-            </div>
-            <div class="row">
-              <span>신뢰 장치</span>
-              <span>플랫폼마다 편차</span>
-              <span>에스크로 + 체크리스트</span>
-            </div>
-          </div>
-        </section>
-
-        <section id="cta" class="section cta-section">
-          <div class="cta-card">
-            <p class="eyebrow">Start with one sentence</p>
-            <h2>아이디어 한 줄이면 충분합니다.</h2>
-            <p>
-              기획서가 없어도 됩니다. 어떤 문제를 해결하고 싶은지만 적어주시면,
-              PrestoLabs가 그 아이디어를 실행 가능한 서비스로 정리해드립니다.
-            </p>
-
-            <form class="idea-form" id="idea-form">
-              <label for="idea">만들고 싶은 것을 적어주세요</label>
-              <div class="idea-input-row">
+              <div class="request-field">
+                <label for="idea-input">무엇을 만들고 싶나요?</label>
                 <textarea
-                  id="idea"
-                  name="idea"
+                  id="idea-input"
                   rows="4"
-                  placeholder="예: 카페 예약과 문의를 한 번에 관리하는 작은 웹앱이 필요해요."
+                  placeholder="예: 상담 문의를 자동으로 정리하고 예약까지 받는 웹페이지를 만들고 싶어요."
                 ></textarea>
-                <button type="submit" class="btn btn-primary">AI 초안 보기</button>
               </div>
-            </form>
 
-            <div class="idea-result" id="idea-result" hidden>
-              <div class="result-head">
-                <strong>AI 초안 요약</strong>
-                <span>Preview</span>
+              <div class="request-field">
+                <span class="field-title">서비스 카테고리</span>
+                <div class="chip-grid" id="service-categories">
+                  <button class="select-chip is-selected" type="button" data-service="landing">랜딩페이지 제작</button>
+                  <button class="select-chip" type="button" data-service="website">소상공인 홈페이지</button>
+                  <button class="select-chip" type="button" data-service="automation">업무 자동화</button>
+                  <button class="select-chip" type="button" data-service="mvp">MVP 개발</button>
+                  <button class="select-chip" type="button" data-service="admin">관리자 페이지</button>
+                  <button class="select-chip" type="button" data-service="chatbot">AI 챗봇</button>
+                </div>
               </div>
-              <ul id="result-points"></ul>
+
+              <div class="request-row">
+                <div class="request-field">
+                  <label for="budget-select">예산 범위</label>
+                  <select id="budget-select">
+                    <option value="200만원 이하">200만원 이하</option>
+                    <option value="200만~500만원" selected>200만~500만원</option>
+                    <option value="500만~1000만원">500만~1000만원</option>
+                    <option value="1000만원 이상">1000만원 이상</option>
+                  </select>
+                </div>
+
+                <div class="request-field">
+                  <label for="deadline-select">희망 일정</label>
+                  <select id="deadline-select">
+                    <option value="48시간 MVP">48시간 MVP</option>
+                    <option value="1주일 이내" selected>1주일 이내</option>
+                    <option value="2주 이내">2주 이내</option>
+                    <option value="일정 협의">일정 협의</option>
+                  </select>
+                </div>
+              </div>
+
+              <button class="panel-submit" id="panel-submit" type="button">AI 요청서 미리보기</button>
+
+              <div class="request-preview" id="request-preview">
+                <div class="preview-head">
+                  <strong>요청서 요약</strong>
+                  <span>자동 생성</span>
+                </div>
+                <ul id="preview-list">
+                  <li>서비스: 랜딩페이지 제작</li>
+                  <li>예산: 200만~500만원</li>
+                  <li>일정: 1주일 이내</li>
+                  <li>진행 방식: AI 요구사항 정리 후 전문가 매칭</li>
+                </ul>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="section section-soft" id="categories">
+          <div class="container">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">서비스 카테고리</p>
+                <h2>많이 찾는 IT 서비스</h2>
+              </div>
+              <button class="text-link" type="button" id="reset-filter">전체 보기</button>
+            </div>
+
+            <div class="category-grid" id="category-grid">
+              <button class="category-card is-active" type="button" data-service="all">
+                <span class="icon-badge">전체</span>
+                <strong>전체 서비스</strong>
+                <small>빠르게 비교하고 시작하세요</small>
+              </button>
+              <button class="category-card" type="button" data-service="landing">
+                <span class="icon-badge">LP</span>
+                <strong>랜딩페이지 제작</strong>
+                <small>프로모션, 서비스 소개, 이벤트 페이지</small>
+              </button>
+              <button class="category-card" type="button" data-service="website">
+                <span class="icon-badge">WEB</span>
+                <strong>소상공인 홈페이지</strong>
+                <small>브랜드 사이트, 예약, 문의 연결</small>
+              </button>
+              <button class="category-card" type="button" data-service="automation">
+                <span class="icon-badge">AUTO</span>
+                <strong>업무 자동화</strong>
+                <small>노션, 시트, 메일, 카카오 알림 자동화</small>
+              </button>
+              <button class="category-card" type="button" data-service="mvp">
+                <span class="icon-badge">MVP</span>
+                <strong>MVP 개발</strong>
+                <small>빠른 검증용 웹앱과 프로토타입</small>
+              </button>
+              <button class="category-card" type="button" data-service="admin">
+                <span class="icon-badge">CMS</span>
+                <strong>관리자 페이지</strong>
+                <small>내부 운영 도구와 대시보드</small>
+              </button>
+              <button class="category-card" type="button" data-service="chatbot">
+                <span class="icon-badge">AI</span>
+                <strong>AI 챗봇</strong>
+                <small>상담봇, FAQ봇, 내부 업무 보조</small>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="stories">
+          <div class="container">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">추천 서비스</p>
+                <h2>지금 많이 요청되는 프로젝트</h2>
+              </div>
+            </div>
+
+            <div class="service-card-grid" id="service-card-grid">
+              <article class="service-card" data-service="landing">
+                <span class="service-tag">랜딩페이지 제작</span>
+                <h3>신제품 캠페인용 랜딩페이지</h3>
+                <p>광고 클릭 이후 전환율을 높이기 위한 단일 페이지 제작</p>
+                <div class="service-meta">
+                  <span>예상 예산 250만~400만원</span>
+                  <span>3일 내 착수 가능</span>
+                </div>
+              </article>
+              <article class="service-card" data-service="automation">
+                <span class="service-tag">업무 자동화</span>
+                <h3>구글폼 응답 자동 분류 + 카카오 알림</h3>
+                <p>문의 접수부터 담당자 전달까지 반복 업무를 자동화합니다.</p>
+                <div class="service-meta">
+                  <span>예상 예산 180만~300만원</span>
+                  <span>48시간 MVP 가능</span>
+                </div>
+              </article>
+              <article class="service-card" data-service="mvp">
+                <span class="service-tag">MVP 개발</span>
+                <h3>검증용 예약 서비스 MVP</h3>
+                <p>회원, 예약, 관리자 화면까지 포함한 초기 테스트용 제품</p>
+                <div class="service-meta">
+                  <span>예상 예산 500만~900만원</span>
+                  <span>1주 이내 설계 시작</span>
+                </div>
+              </article>
+              <article class="service-card" data-service="website">
+                <span class="service-tag">소상공인 홈페이지</span>
+                <h3>매장 소개 + 예약 연결 홈페이지</h3>
+                <p>브랜드 소개, 위치, 문의, 예약 CTA를 한 번에 구성합니다.</p>
+                <div class="service-meta">
+                  <span>예상 예산 200만~350만원</span>
+                  <span>3일 내 작업 시작</span>
+                </div>
+              </article>
+              <article class="service-card" data-service="admin">
+                <span class="service-tag">관리자 페이지</span>
+                <h3>내부 운영용 대시보드</h3>
+                <p>주문, 회원, 통계 확인이 가능한 관리 화면을 빠르게 구축합니다.</p>
+                <div class="service-meta">
+                  <span>예상 예산 350만~600만원</span>
+                  <span>요구사항 정리 필요</span>
+                </div>
+              </article>
+              <article class="service-card" data-service="chatbot">
+                <span class="service-tag">AI 챗봇</span>
+                <h3>고객 문의 자동 응답 챗봇</h3>
+                <p>자주 묻는 질문과 기본 상담 흐름을 자동화합니다.</p>
+                <div class="service-meta">
+                  <span>예상 예산 220만~420만원</span>
+                  <span>48시간 프로토타입 가능</span>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="section section-soft" id="experts">
+          <div class="container">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">추천 고수</p>
+                <h2>서비스에 맞는 전문가를 찾아보세요</h2>
+              </div>
+              <div class="filter-chips" id="expert-filters">
+                <button class="filter-chip is-active" type="button" data-service="all">전체</button>
+                <button class="filter-chip" type="button" data-service="landing">랜딩</button>
+                <button class="filter-chip" type="button" data-service="automation">자동화</button>
+                <button class="filter-chip" type="button" data-service="mvp">MVP</button>
+              </div>
+            </div>
+
+            <div class="expert-grid" id="expert-grid">
+              <article class="expert-card" data-service="landing">
+                <div class="expert-top">
+                  <div class="avatar">YK</div>
+                  <div>
+                    <h3>유하 고수</h3>
+                    <p>랜딩페이지 · 웹 퍼블리싱 · Framer</p>
+                  </div>
+                </div>
+                <div class="expert-rating">★ 5.0 · 최근 14건 완료</div>
+                <p class="expert-desc">광고 전환용 페이지와 빠른 프로토타입 제작에 강합니다.</p>
+                <div class="expert-tags">
+                  <span>랜딩</span>
+                  <span>브랜드 소개</span>
+                  <span>빠른 수정</span>
+                </div>
+              </article>
+
+              <article class="expert-card" data-service="automation">
+                <div class="expert-top">
+                  <div class="avatar">TM</div>
+                  <div>
+                    <h3>태민 고수</h3>
+                    <p>업무 자동화 · Apps Script · Notion</p>
+                  </div>
+                </div>
+                <div class="expert-rating">★ 4.9 · 평균 36시간 응답</div>
+                <p class="expert-desc">반복 업무를 실제 운영에 맞게 자동화하는 설계 경험이 많습니다.</p>
+                <div class="expert-tags">
+                  <span>자동화</span>
+                  <span>시트 연동</span>
+                  <span>카카오 알림</span>
+                </div>
+              </article>
+
+              <article class="expert-card" data-service="mvp">
+                <div class="expert-top">
+                  <div class="avatar">IS</div>
+                  <div>
+                    <h3>이삭 고수</h3>
+                    <p>MVP 개발 · React · Supabase</p>
+                  </div>
+                </div>
+                <div class="expert-rating">★ 5.0 · MVP 전문</div>
+                <p class="expert-desc">아이디어 검증용 제품을 빠르게 구조화하고 실행하는 데 특화돼 있습니다.</p>
+                <div class="expert-tags">
+                  <span>MVP</span>
+                  <span>웹앱</span>
+                  <span>관리자</span>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="trust">
+          <div class="container trust-layout">
+            <div class="trust-copy">
+              <p class="eyebrow">안전거래</p>
+              <h2>복잡한 외주를 더 안전하게</h2>
+              <p>
+                숨고의 홈에서 보이는 신뢰 메시지처럼, PrestoLabs도 사용자가 바로 안심할 수 있는
+                거래 구조를 전면에 배치했습니다. 요구사항 정리, 체크리스트 검수, 에스크로 정산을
+                한 흐름으로 제공합니다.
+              </p>
+              <ul class="trust-list">
+                <li>AI가 먼저 요구사항을 정리해 범위를 명확히 합니다.</li>
+                <li>검수 전에는 정산되지 않는 에스크로 구조를 사용합니다.</li>
+                <li>진행 상태와 중간 산출물을 한 화면에서 확인할 수 있습니다.</li>
+              </ul>
+            </div>
+
+            <div class="trust-cards">
+              <article class="trust-card">
+                <strong>AI 요구사항 정리</strong>
+                <p>막연한 아이디어도 기능 목록과 범위로 구조화합니다.</p>
+              </article>
+              <article class="trust-card">
+                <strong>체크리스트 검수</strong>
+                <p>결과물을 감이 아니라 합의된 항목 기준으로 확인합니다.</p>
+              </article>
+              <article class="trust-card">
+                <strong>에스크로 정산</strong>
+                <p>검수 완료 후 정산되는 구조로 거래 불안을 줄입니다.</p>
+              </article>
+              <article class="trust-card highlight">
+                <strong>48시간 빠른 실행</strong>
+                <p>작은 MVP와 자동화는 빠르게 시작하고 빠르게 검증합니다.</p>
+              </article>
             </div>
           </div>
         </section>
