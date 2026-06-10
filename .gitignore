@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+
+# Local preview / QA artifacts
+prestolabs-home-*.png
+prestolabs-poster-*.png
+
+# Optional local env files
+.env
+.env.local
+
+# Editor
+.vscode/
+.idea/

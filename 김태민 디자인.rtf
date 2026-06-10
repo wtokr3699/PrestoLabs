@@ -1,0 +1,433 @@
+{\rtf1\ansi\ansicpg949\cocoartf2870
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 AndaleMono;}
+{\colortbl;\red255\green255\blue255;\red41\green41\blue47;\red255\green255\blue255;}
+{\*\expandedcolortbl;;\cssrgb\c21176\c21569\c24314;\cssrgb\c100000\c100000\c100000;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs28 \cf2 \cb3 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 \
+<style>\
+* \{ box-sizing: border-box; margin: 0; padding: 0; \}\
+body \{ font-family: var(--font-sans); \}\
+\
+.doc \{ max-width: 680px; padding: 0 0 3rem; \}\
+\
+.cover \{ padding: 2.5rem 0 2rem; border-bottom: 0.5px solid var(--color-border-tertiary); margin-bottom: 2rem; \}\
+.cover-badge \{ display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; background: var(--color-background-info); color: var(--color-text-info); margin-bottom: 1rem; letter-spacing: .04em; \}\
+.cover h1 \{ font-size: 28px; font-weight: 500; line-height: 1.3; color: var(--color-text-primary); margin-bottom: .5rem; \}\
+.cover .sub \{ font-size: 15px; color: var(--color-text-secondary); line-height: 1.6; max-width: 520px; \}\
+.cover-meta \{ display: flex; gap: 1.5rem; margin-top: 1.5rem; font-size: 12px; color: var(--color-text-tertiary); \}\
+\
+.section \{ margin-bottom: 2.5rem; \}\
+.section-label \{ font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); letter-spacing: .08em; text-transform: uppercase; margin-bottom: .75rem; \}\
+.section-title \{ font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 1.25rem; \}\
+\
+/* Summary cards */\
+.summary-grid \{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.5rem; \}\
+.scard \{ background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: .875rem 1rem; \}\
+.scard-label \{ font-size: 12px; color: var(--color-text-secondary); margin-bottom: .25rem; \}\
+.scard-value \{ font-size: 20px; font-weight: 500; color: var(--color-text-primary); \}\
+\
+/* Feature cards */\
+.feature-list \{ display: flex; flex-direction: column; gap: 10px; \}\
+.fcard \{ background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; \}\
+.fcard-head \{ display: flex; align-items: center; gap: 10px; margin-bottom: .5rem; \}\
+.fcard-icon \{ width: 32px; height: 32px; border-radius: var(--border-radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; \}\
+.fcard-icon i \{ font-size: 16px; \}\
+.fcard-title \{ font-size: 14px; font-weight: 500; color: var(--color-text-primary); \}\
+.fcard-badge \{ font-size: 10px; padding: 2px 8px; border-radius: 20px; margin-left: auto; font-weight: 500; \}\
+.fcard-desc \{ font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; \}\
+.fcard-steps \{ margin-top: .75rem; display: flex; flex-direction: column; gap: 4px; \}\
+.fstep \{ display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; \}\
+.fstep-num \{ width: 18px; height: 18px; border-radius: 50%; background: var(--color-background-secondary); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 500; color: var(--color-text-secondary); flex-shrink: 0; margin-top: 1px; \}\
+\
+/* User journey */\
+.journey \{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; \}\
+.jcol \{ \}\
+.jcol-title \{ font-size: 12px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: .75rem; display: flex; align-items: center; gap: 6px; \}\
+.jstep \{ display: flex; gap: 10px; margin-bottom: 8px; align-items: flex-start; \}\
+.jstep-dot \{ width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; font-weight: 500; margin-top: 2px; \}\
+.jstep-content \{ flex: 1; \}\
+.jstep-title \{ font-size: 13px; font-weight: 500; color: var(--color-text-primary); line-height: 1.4; \}\
+.jstep-desc \{ font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; \}\
+.jline \{ width: 1px; height: 12px; background: var(--color-border-tertiary); margin-left: 13px; margin-bottom: 8px; \}\
+\
+/* Screen wireframe */\
+.screen-wrap \{ background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1.5rem; \}\
+.screen \{ background: var(--color-background-primary); border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); overflow: hidden; \}\
+.screen-nav \{ display: flex; align-items: center; gap: 12px; padding: .625rem 1rem; border-bottom: 0.5px solid var(--color-border-tertiary); \}\
+.screen-logo \{ font-size: 13px; font-weight: 500; color: var(--color-text-primary); \}\
+.screen-dot \{ width: 6px; height: 6px; border-radius: 50%; background: var(--color-background-info); \}\
+.screen-nav-links \{ display: flex; gap: 12px; margin-left: auto; \}\
+.screen-nav-links span \{ font-size: 11px; color: var(--color-text-secondary); \}\
+.screen-btn-sm \{ font-size: 11px; padding: 4px 12px; border-radius: 20px; background: var(--color-text-primary); color: var(--color-background-primary); border: none; \}\
+\
+.chat-area \{ padding: 1rem; display: flex; flex-direction: column; gap: 10px; \}\
+.chat-header \{ font-size: 16px; font-weight: 500; text-align: center; color: var(--color-text-primary); margin-bottom: .25rem; \}\
+.chat-sub \{ font-size: 12px; text-align: center; color: var(--color-text-secondary); margin-bottom: 1rem; \}\
+.chat-bubble \{ display: flex; gap: 8px; align-items: flex-start; \}\
+.bubble-avatar \{ width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 500; flex-shrink: 0; \}\
+.bubble-ai \{ background: var(--color-background-info); color: var(--color-text-info); \}\
+.bubble-user \{ background: var(--color-background-secondary); color: var(--color-text-secondary); \}\
+.bubble-msg \{ border-radius: 12px; padding: .5rem .875rem; font-size: 12px; line-height: 1.5; max-width: 80%; \}\
+.bubble-msg-ai \{ background: var(--color-background-secondary); color: var(--color-text-primary); border-radius: 4px 12px 12px 12px; \}\
+.bubble-msg-user \{ background: var(--color-text-primary); color: var(--color-background-primary); border-radius: 12px 4px 12px 12px; margin-left: auto; \}\
+.bubble-right \{ justify-content: flex-end; \}\
+.prd-preview \{ background: var(--color-background-secondary); border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); padding: .75rem 1rem; margin-top: .5rem; \}\
+.prd-title \{ font-size: 11px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: .5rem; display: flex; align-items: center; gap: 6px; \}\
+.prd-row \{ display: grid; grid-template-columns: 1fr 1fr; gap: 6px; \}\
+.prd-item \{ font-size: 11px; color: var(--color-text-secondary); padding: 4px 8px; background: var(--color-background-primary); border-radius: 4px; border: 0.5px solid var(--color-border-tertiary); \}\
+.prd-item span \{ color: var(--color-text-primary); font-weight: 500; display: block; \}\
+.chat-input \{ display: flex; gap: 8px; margin: 0 1rem 1rem; \}\
+.chat-input input \{ flex: 1; font-size: 12px; padding: 8px 12px; border-radius: 20px; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); color: var(--color-text-primary); outline: none; \}\
+.chat-input button \{ width: 32px; height: 32px; border-radius: 50%; background: var(--color-text-primary); border: none; color: var(--color-background-primary); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; \}\
+\
+/* Revenue model */\
+.rev-grid \{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; \}\
+.rcard \{ border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; background: var(--color-background-primary); \}\
+.rcard-icon \{ width: 36px; height: 36px; border-radius: var(--border-radius-md); display: flex; align-items: center; justify-content: center; margin-bottom: .75rem; \}\
+.rcard-icon i \{ font-size: 18px; \}\
+.rcard-title \{ font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: .25rem; \}\
+.rcard-amount \{ font-size: 18px; font-weight: 500; margin-bottom: .25rem; \}\
+.rcard-desc \{ font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; \}\
+\
+/* Diff table */\
+.diff-table \{ width: 100%; border-collapse: collapse; font-size: 12px; \}\
+.diff-table th \{ background: var(--color-background-secondary); padding: 8px 12px; text-align: left; font-weight: 500; color: var(--color-text-secondary); border-bottom: 0.5px solid var(--color-border-tertiary); \}\
+.diff-table td \{ padding: 8px 12px; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-secondary); vertical-align: top; line-height: 1.5; \}\
+.diff-table tr:last-child td \{ border-bottom: none; \}\
+.diff-table td.item \{ font-weight: 500; color: var(--color-text-primary); \}\
+.diff-tag \{ display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 500; \}\
+.diff-bad \{ background: var(--color-background-danger); color: var(--color-text-danger); \}\
+.diff-good \{ background: var(--color-background-success); color: var(--color-text-success); \}\
+\
+.divider \{ height: 0.5px; background: var(--color-border-tertiary); margin: 2rem 0; \}\
+</style>\
+\
+<div class="doc">\
+\
+  <!-- Cover -->\
+  <div class="cover">\
+    <div class="cover-badge">\uc0\u49436 \u48708 \u49828  \u44592 \u54925 \u49436  v1.0</div>\
+    <h1>\uc0\u50500 \u51060 \u46356 \u50612 \u47484  IT \u49436 \u48708 \u49828 \u47196  \'97<br>AI \u44592 \u48152  \u50808 \u51452  \u47588 \u52845  \u54540 \u47019 \u54268 </h1>\
+    <p class="sub">\uc0\u48708  IT \u52285 \u50629 \u51088 \u51032  \u50500 \u51060 \u46356 \u50612 \u47484  \u44060 \u48156 \u51088 \u44032  \u51060 \u54644 \u54616 \u45716  \u50616 \u50612 \u47196  \u48264 \u50669 \u54616 \u44256 , \u44160 \u51613 \u46108  \u44060 \u48156 \u54016 \u44284  \u50504 \u51204 \u54616 \u44172  \u50672 \u44208 \u54616 \u45716  \u48652 \u47551 \u51648  \u54540 \u47019 \u54268 </p>\
+    <div class="cover-meta">\
+      <span>\uc0\u44592 \u54925  \u52488 \u50504 </span>\
+      <span>\'b7</span>\
+      <span>2025</span>\
+      <span>\'b7</span>\
+      <span>IT \uc0\u50808 \u51452  \u47588 \u52845 </span>\
+    </div>\
+  </div>\
+\
+  <!-- Summary -->\
+  <div class="section">\
+    <div class="section-label">\uc0\u49436 \u48708 \u49828  \u44060 \u50836 </div>\
+    <div class="summary-grid">\
+      <div class="scard">\
+        <div class="scard-label">\uc0\u54645 \u49900  \u52264 \u48324 \u51216 </div>\
+        <div class="scard-value" style="font-size:15px; margin-top:4px;">AI \uc0\u44592 \u54925  \u48264 \u50669 </div>\
+      </div>\
+      <div class="scard">\
+        <div class="scard-label">\uc0\u47588 \u52845  \u49688 \u49688 \u47308 </div>\
+        <div class="scard-value">5\'9610%</div>\
+      </div>\
+      <div class="scard">\
+        <div class="scard-label">\uc0\u51452 \u50836  \u53440 \u44191 </div>\
+        <div class="scard-value" style="font-size:15px; margin-top:4px;">\uc0\u50696 \u48708  \u52285 \u50629 \u51088 </div>\
+      </div>\
+    </div>\
+    <p style="font-size:13px; color:var(--color-text-secondary); line-height:1.7;">\uc0\u49704 \u44256 \'b7\u53356 \u47805 \u51032  '\u50836 \u52397 -\u44204 \u51201 ' \u47784 \u45944 \u50640  <strong style="color:var(--color-text-primary); font-weight:500;">AI \u44592 \u48152  \u50836 \u44396 \u49324 \u54637  \u44256 \u46020 \u54868 (Requirement Engineering)</strong>\u50752  <strong style="color:var(--color-text-primary); font-weight:500;">\u47560 \u51068 \u49828 \u53668  \u50640 \u49828 \u53356 \u47196  \u44208 \u51228 </strong>\u47484  \u44208 \u54633 \u54633 \u45768 \u45796 . IT \u51648 \u49885 \u51060  \u50630 \u45716  \u51032 \u47280 \u51064 \u46020  \u52311 \u48391 \u44284 \u51032  \u45824 \u54868 \u47564 \u51004 \u47196  PRD(\u51228 \u54408  \u50836 \u44396 \u49324 \u54637  \u51221 \u51032 \u49436 )\u47484  \u49373 \u49457 \u54616 \u44256 , \u51201 \u54633 \u54620  \u44060 \u48156 \u54016 \u50640 \u44172  \u44204 \u51201 \u51012  \u48155 \u51012  \u49688  \u51080 \u49845 \u45768 \u45796 .</p>\
+  </div>\
+\
+  <div class="divider"></div>\
+\
+  <!-- \uc0\u44221 \u51137  \u48708 \u44368  -->\
+  <div class="section">\
+    <div class="section-label">\uc0\u44221 \u51137  \u48516 \u49437 </div>\
+    <div class="section-title">\uc0\u44592 \u51316  \u54540 \u47019 \u54268  \u45824 \u48708  \u54645 \u49900  \u52264 \u51060 </div>\
+    <table class="diff-table">\
+      <thead>\
+        <tr>\
+          <th>\uc0\u44396 \u48516 </th>\
+          <th>\uc0\u44592 \u51316  \u54540 \u47019 \u54268  (\u49704 \u44256 \'b7\u53356 \u47805 )</th>\
+          <th>\uc0\u48376  \u54540 \u47019 \u54268 </th>\
+        </tr>\
+      </thead>\
+      <tbody>\
+        <tr>\
+          <td class="item">\uc0\u50836 \u52397  \u48169 \u49885 </td>\
+          <td><span class="diff-tag diff-bad">\uc0\u54620 \u44228 </span> \u52628 \u49345 \u51201  \u51656 \u47928 \u51648 </td>\
+          <td><span class="diff-tag diff-good">\uc0\u44060 \u49440 </span> AI \u52311 \u48391 \u51004 \u47196  PRD \u51088 \u46041  \u49373 \u49457 </td>\
+        </tr>\
+        <tr>\
+          <td class="item">\uc0\u47588 \u52845  \u44592 \u51456 </td>\
+          <td><span class="diff-tag diff-bad">\uc0\u54620 \u44228 </span> \u52572 \u51200 \u44032  \u44221 \u51137 </td>\
+          <td><span class="diff-tag diff-good">\uc0\u44060 \u49440 </span> \u44592 \u49696  \u49828 \u53469  & \u46020 \u47700 \u51064  \u51201 \u54633 \u49457 </td>\
+        </tr>\
+        <tr>\
+          <td class="item">\uc0\u54016  \u44396 \u49457 </td>\
+          <td><span class="diff-tag diff-bad">\uc0\u54620 \u44228 </span> \u44060 \u51064  \u54532 \u47532 \u47004 \u49436  \u50948 \u51452 </td>\
+          <td><span class="diff-tag diff-good">\uc0\u44060 \u49440 </span> \u49828 \u53244 \u46300  \u54016  \u51077 \u52272  \u51648 \u50896 </td>\
+        </tr>\
+        <tr>\
+          <td class="item">\uc0\u51652 \u54665  \u44288 \u47532 </td>\
+          <td><span class="diff-tag diff-bad">\uc0\u54620 \u44228 </span> \u47588 \u52845  \u54980  \u45817 \u49324 \u51088 \u50640 \u44172  \u50948 \u51076 </td>\
+          <td><span class="diff-tag diff-good">\uc0\u44060 \u49440 </span> \u47560 \u51068 \u49828 \u53668  \u50640 \u49828 \u53356 \u47196  + \u49328 \u52636 \u47932  \u44160 \u49688 </td>\
+        </tr>\
+      </tbody>\
+    </table>\
+  </div>\
+\
+  <div class="divider"></div>\
+\
+  <!-- \uc0\u54645 \u49900  \u44592 \u45733  -->\
+  <div class="section">\
+    <div class="section-label">\uc0\u54645 \u49900  \u44592 \u45733 </div>\
+    <div class="section-title">3\uc0\u44032 \u51648  \u52264 \u48324 \u54868  \u51204 \u47029 </div>\
+    <div class="feature-list">\
+\
+      <div class="fcard" style="border-color: var(--color-border-info);">\
+        <div class="fcard-head">\
+          <div class="fcard-icon" style="background:var(--color-background-info);">\
+            <i class="ti ti-message-chatbot" style="color:var(--color-text-info);" aria-hidden="true"></i>\
+          </div>\
+          <div>\
+            <div class="fcard-title">A. AI \uc0\u44592 \u54925  \u48264 \u50669 \u44592  (Idea \u8594  PRD)</div>\
+          </div>\
+          <span class="fcard-badge" style="background:var(--color-background-info); color:var(--color-text-info);">\uc0\u54645 \u49900  \u44592 \u45733 </span>\
+        </div>\
+        <div class="fcard-desc">\uc0\u50500 \u51060 \u46356 \u50612 \u47484  \u44060 \u48156 \u51088 \u44032  \u51060 \u54644 \u54616 \u45716  \u50616 \u50612 \u47196  \u48264 \u50669 \u54633 \u45768 \u45796 . \u52311 \u48391 \u44284 \u51032  \u51088 \u50672 \u50612  \u45824 \u54868 \u47196  \u47785 \u51201 \'b7\u53440 \u44191 \'b7\u44592 \u45733 \u51012  \u51221 \u51032 \u54616 \u44256 , AI\u44032  \u50976 \u49324  \u49436 \u48708 \u49828 \u47484  \u48516 \u49437 \u54644  1\u51109 \u51676 \u47532  PRD \u52488 \u50504 \u51012  \u51088 \u46041  \u49373 \u49457 \u54633 \u45768 \u45796 .</div>\
+        <div class="fcard-steps">\
+          <div class="fstep"><div class="fstep-num">1</div>\uc0\u45824 \u54868 \u54805  \u51064 \u53552 \u54168 \u51060 \u49828 \u47196  \u50500 \u51060 \u46356 \u50612  \u49828 \u52992 \u52824  (\u47785 \u51201  \'b7 \u53440 \u44191  \'b7 \u54596 \u49688  \u44592 \u45733 )</div>\
+          <div class="fstep"><div class="fstep-num">2</div>AI\uc0\u44032  \u50976 \u49324  \u49436 \u48708 \u49828  \u48516 \u49437  \u8594  \u49464 \u48512  \u44592 \u45733 (\u47196 \u44536 \u51064 , \u44208 \u51228 , DB \u46321 ) \u50669 \u51228 \u50504 </div>\
+          <div class="fstep"><div class="fstep-num">3</div>\uc0\u54364 \u51456 \u54868 \u46108  PRD \u51088 \u46041  \u49373 \u49457  \u48143  \u44204 \u51201  \u50836 \u52397  \u48156 \u49569 </div>\
+        </div>\
+      </div>\
+\
+      <div class="fcard">\
+        <div class="fcard-head">\
+          <div class="fcard-icon" style="background:var(--color-background-success);">\
+            <i class="ti ti-users-group" style="color:var(--color-text-success);" aria-hidden="true"></i>\
+          </div>\
+          <div>\
+            <div class="fcard-title">B. \uc0\u50976 \u50672 \u54620  \u54016  \u48716 \u46377  (Squad Matching)</div>\
+          </div>\
+        </div>\
+        <div class="fcard-desc">\uc0\u46356 \u51088 \u51064 \'b7\u54532 \u47200 \u53944 \'b7\u48177 \u50644 \u46300  \u48373 \u54633  \u44592 \u49696 \u51060  \u54596 \u50836 \u54620  IT \u54532 \u47196 \u51229 \u53944 \u47484  \u50948 \u54644 , \u54540 \u47019 \u54268  \u45236  \u51204 \u47928 \u44032 \u46308 \u51060  \u49828 \u53244 \u46300 \u47484  \u44208 \u49457 \u54616 \u50668  \u54016  \u45800 \u50948 \u47196  \u51077 \u52272 \u54624  \u49688  \u51080 \u49845 \u45768 \u45796 . GitHub\'b7Figma \u54252 \u53944 \u54260 \u47532 \u50724  \u50672 \u46041 \u51004 \u47196  \u49892 \u47141 \u51012  \u44160 \u51613 \u54633 \u45768 \u45796 .</div>\
+      </div>\
+\
+      <div class="fcard">\
+        <div class="fcard-head">\
+          <div class="fcard-icon" style="background:var(--color-background-warning);">\
+            <i class="ti ti-shield-check" style="color:var(--color-text-warning);" aria-hidden="true"></i>\
+          </div>\
+          <div>\
+            <div class="fcard-title">C. \uc0\u47560 \u51068 \u49828 \u53668  \u50640 \u49828 \u53356 \u47196  \u44208 \u51228 </div>\
+          </div>\
+        </div>\
+        <div class="fcard-desc">\uc0\u51204 \u52404  \u45824 \u44552 \u51012  \u54540 \u47019 \u54268 \u50640  \u50696 \u52824 \u54616 \u44256 , \u54633 \u51032 \u46108  \u47560 \u51068 \u49828 \u53668 (\u46356 \u51088 \u51064  \u50756 \u47308  \u8594  1\u52264  \u50672 \u46041  \u8594  QA) \u46020 \u45804  \u49884 \u50640 \u47564  \u48516 \u54624  \u51648 \u44553 \u54633 \u45768 \u45796 . \u54532 \u47196 \u51229 \u53944  \u51473 \u45800  \u47532 \u49828 \u53356 \u47484  \u52572 \u49548 \u54868 \u54633 \u45768 \u45796 .</div>\
+      </div>\
+\
+    </div>\
+  </div>\
+\
+  <div class="divider"></div>\
+\
+  <!-- \uc0\u54645 \u49900  \u54868 \u47732 : AI \u52311 \u48391  -->\
+  <div class="section">\
+    <div class="section-label">\uc0\u54868 \u47732  \u49444 \u44228 </div>\
+    <div class="section-title">\uc0\u54645 \u49900  \u54868 \u47732  \'97 AI \u44592 \u54925  \u48264 \u50669 \u44592 </div>\
+    <div class="screen-wrap">\
+      <div class="screen">\
+        <!-- Nav -->\
+        <div class="screen-nav">\
+          <div class="screen-dot"></div>\
+          <div class="screen-logo">Bridgit</div>\
+          <div class="screen-nav-links">\
+            <span>\uc0\u54532 \u47196 \u51229 \u53944  \u53456 \u49353 </span>\
+            <span>\uc0\u51089 \u50629 \u51088  \u47784 \u51665 </span>\
+          </div>\
+          <button class="screen-btn-sm">\uc0\u47196 \u44536 \u51064 </button>\
+        </div>\
+        <!-- Chat area -->\
+        <div class="chat-area">\
+          <div class="chat-header">\uc0\u50500 \u51060 \u46356 \u50612 \u47484  \u47568 \u50432 \u54644  \u51452 \u49464 \u50836 </div>\
+          <div class="chat-sub">AI\uc0\u44032  \u44060 \u48156  \u44032 \u45733 \u54620  \u44592 \u54925 \u49436 \u47196  \u48264 \u50669 \u54644  \u46300 \u47549 \u45768 \u45796 </div>\
+\
+          <div class="chat-bubble">\
+            <div class="bubble-avatar bubble-ai">AI</div>\
+            <div class="bubble-msg bubble-msg-ai">\uc0\u50504 \u45397 \u54616 \u49464 \u50836 ! \u50612 \u46500  \u49436 \u48708 \u49828 \u47484  \u47564 \u46308 \u44256  \u49910 \u51004 \u49888 \u44032 \u50836 ? \u44036 \u45800 \u55176  \u47568 \u50432 \u54644  \u51452 \u49464 \u50836 .</div>\
+          </div>\
+\
+          <div class="chat-bubble bubble-right">\
+            <div class="bubble-msg bubble-msg-user">\uc0\u46041 \u45348  \u49548 \u49345 \u44277 \u51064 \u46308 \u51060  \u44036 \u54200 \u54616 \u44172  \u50696 \u50557 \u51012  \u48155 \u51012  \u49688  \u51080 \u45716  \u50545 \u51012  \u47564 \u46308 \u44256  \u49910 \u50612 \u50836 .</div>\
+            <div class="bubble-avatar bubble-user">\uc0\u45208 </div>\
+          </div>\
+\
+          <div class="chat-bubble">\
+            <div class="bubble-avatar bubble-ai">AI</div>\
+            <div class="bubble-msg bubble-msg-ai">\uc0\u51339 \u50500 \u50836 ! \u50976 \u49324  \u49436 \u48708 \u49828 (\u45348 \u51060 \u48260  \u50696 \u50557 , \u52852 \u52852 \u50724  \u50696 \u50557 )\u47484  \u48516 \u49437 \u54620  \u44208 \u44284 , \u45796 \u51020  \u44592 \u45733 \u46308 \u51060  \u54596 \u50836 \u54624  \u44163  \u44057 \u50500 \u50836 . \u47582 \u45716 \u51648  \u54869 \u51064 \u54644  \u51452 \u49464 \u50836 .</div>\
+          </div>\
+\
+          <div class="prd-preview">\
+            <div class="prd-title">\
+              <i class="ti ti-file-description" style="font-size:14px;" aria-hidden="true"></i>\
+              PRD \uc0\u52488 \u50504  \u51088 \u46041  \u49373 \u49457  \u51473 ...\
+            </div>\
+            <div class="prd-row">\
+              <div class="prd-item"><span>\uc0\u49436 \u48708 \u49828  \u50976 \u54805 </span>\u50696 \u50557  \u44288 \u47532  \u54540 \u47019 \u54268 </div>\
+              <div class="prd-item"><span>\uc0\u51452 \u50836  \u53440 \u44191 </span>\u49548 \u49345 \u44277 \u51064  & \u44256 \u44061 </div>\
+              <div class="prd-item"><span>\uc0\u54596 \u49688  \u44592 \u45733 </span>\u50696 \u50557  \u52888 \u47536 \u45908 , \u50508 \u47548 </div>\
+              <div class="prd-item"><span>\uc0\u50696 \u49345  \u44592 \u49696 </span>React Native, Node.js</div>\
+              <div class="prd-item"><span>\uc0\u50672 \u46041  \u54596 \u50836 </span>\u52852 \u52852 \u50724 \u53665  \u50508 \u47548 , \u44208 \u51228 </div>\
+              <div class="prd-item"><span>\uc0\u50696 \u49345  \u44592 \u44036 </span>2\'963\u44060 \u50900 </div>\
+            </div>\
+          </div>\
+        </div>\
+        <div class="chat-input">\
+          <input type="text" placeholder="\uc0\u47700 \u49884 \u51648 \u47484  \u51077 \u47141 \u54616 \u49464 \u50836 ..." disabled>\
+          <button disabled><i class="ti ti-arrow-up" aria-hidden="true"></i></button>\
+        </div>\
+      </div>\
+    </div>\
+  </div>\
+\
+  <div class="divider"></div>\
+\
+  <!-- User Journey -->\
+  <div class="section">\
+    <div class="section-label">\uc0\u49324 \u50857 \u51088  \u50668 \u51221 </div>\
+    <div class="section-title">\uc0\u51032 \u47280 \u51064  & \u51089 \u50629 \u51088  \u50668 \u51221 </div>\
+    <div class="journey">\
+      <div class="jcol">\
+        <div class="jcol-title">\
+          <i class="ti ti-user" style="font-size:14px; color:var(--color-text-info);" aria-hidden="true"></i>\
+          \uc0\u51032 \u47280 \u51064  \u50668 \u51221 \
+        </div>\
+        <div class="jstep">\
+          <div class="jstep-dot" style="background:var(--color-background-info); color:var(--color-text-info);">1</div>\
+          <div class="jstep-content">\
+            <div class="jstep-title">\uc0\u50500 \u51060 \u46356 \u50612  \u46321 \u47197 </div>\
+            <div class="jstep-desc">\uc0\u52311 \u48391 \u44284  \u45824 \u54868  \u8594  PRD \u52488 \u50504  \u49373 \u49457 </div>\
+          </div>\
+        </div>\
+        <div class="jline"></div>\
+        <div class="jstep">\
+          <div class="jstep-dot" style="background:var(--color-background-info); color:var(--color-text-info);">2</div>\
+          <div class="jstep-content">\
+            <div class="jstep-title">\uc0\u51228 \u50504 \u49436  \u48708 \u44368 </div>\
+            <div class="jstep-desc">\uc0\u46020 \u52265 \u54620  \u44204 \u51201  & \u54252 \u53944 \u54260 \u47532 \u50724  \u48708 \u44368 </div>\
+          </div>\
+        </div>\
+        <div class="jline"></div>\
+        <div class="jstep">\
+          <div class="jstep-dot" style="background:var(--color-background-info); color:var(--color-text-info);">3</div>\
+          <div class="jstep-content">\
+            <div class="jstep-title">\uc0\u54868 \u49345  \u48120 \u54021 </div>\
+            <div class="jstep-desc">\uc0\u54540 \u47019 \u54268  \u45236  \u54868 \u49345  \u51064 \u53552 \u48624 \u47196  \u54607  \u54869 \u51064 </div>\
+          </div>\
+        </div>\
+        <div class="jline"></div>\
+        <div class="jstep">\
+          <div class="jstep-dot" style="background:var(--color-background-secondary); color:var(--color-text-secondary);">4</div>\
+          <div class="jstep-content">\
+            <div class="jstep-title">\uc0\u44228 \u50557  & \u50696 \u52824 </div>\
+            <div class="jstep-desc">\uc0\u51204 \u51088  \u44228 \u50557  + \u50640 \u49828 \u53356 \u47196  \u45824 \u44552  \u50696 \u52824 </div>\
+          </div>\
+        </div>\
+        <div class="jline"></div>\
+        <div class="jstep">\
+          <div class="jstep-dot" style="background:var(--color-background-success); color:var(--color-text-success);">5</div>\
+          <div class="jstep-content">\
+            <div class="jstep-title">\uc0\u47560 \u51068 \u49828 \u53668  \u49849 \u51064 </div>\
+            <div class="jstep-desc">\uc0\u45800 \u44228 \u48324  \u49328 \u52636 \u47932  \u54869 \u51064  & \u45824 \u44552  \u51648 \u44553 </div>\
+          </div>\
+        </div>\
+      </div>\
+\
+      <div class="jcol">\
+        <div class="jcol-title">\
+          <i class="ti ti-code" style="font-size:14px; color:var(--color-text-success);" aria-hidden="true"></i>\
+          \uc0\u51089 \u50629 \u51088  \u50668 \u51221 \
+        </div>\
+        <div class="jstep">\
+          <div class="jstep-dot" style="background:var(--color-background-success); color:var(--color-text-success);">1</div>\
+          <div class="jstep-content">\
+            <div class="jstep-title">\uc0\u54532 \u47196 \u54596  \u46321 \u47197 </div>\
+            <div class="jstep-desc">GitHub\'b7Figma \uc0\u54252 \u53944 \u54260 \u47532 \u50724  \u50672 \u46041 </div>\
+          </div>\
+        </div>\
+        <div class="jline"></div>\
+        <div class="jstep">\
+          <div class="jstep-dot" style="background:var(--color-background-success); color:var(--color-text-success);">2</div>\
+          <div class="jstep-content">\
+            <div class="jstep-title">\uc0\u49828 \u53244 \u46300  \u44208 \u49457 </div>\
+            <div class="jstep-desc">\uc0\u46356 \u51088 \u51060 \u45320 \'b7\u44060 \u48156 \u51088 \u50752  \u54016  \u44396 \u49457 </div>\
+          </div>\
+        </div>\
+        <div class="jline"></div>\
+        <div class="jstep">\
+          <div class="jstep-dot" style="background:var(--color-background-success); color:var(--color-text-success);">3</div>\
+          <div class="jstep-content">\
+            <div class="jstep-title">\uc0\u51228 \u50504 \u49436  \u51228 \u52636 </div>\
+            <div class="jstep-desc">PRD \uc0\u44592 \u48152  \u44552 \u50529 \'b7\u51068 \u51221 \'b7\u54252 \u53944 \u54260 \u47532 \u50724 </div>\
+          </div>\
+        </div>\
+        <div class="jline"></div>\
+        <div class="jstep">\
+          <div class="jstep-dot" style="background:var(--color-background-secondary); color:var(--color-text-secondary);">4</div>\
+          <div class="jstep-content">\
+            <div class="jstep-title">\uc0\u44228 \u50557  \u52404 \u44208 </div>\
+            <div class="jstep-desc">\uc0\u51204 \u51088  \u44228 \u50557  + \u47560 \u51068 \u49828 \u53668  \u51068 \u51221  \u54869 \u51221 </div>\
+          </div>\
+        </div>\
+        <div class="jline"></div>\
+        <div class="jstep">\
+          <div class="jstep-dot" style="background:var(--color-background-warning); color:var(--color-text-warning);">5</div>\
+          <div class="jstep-content">\
+            <div class="jstep-title">\uc0\u44060 \u48156  & \u45225 \u54408 </div>\
+            <div class="jstep-desc">\uc0\u49328 \u52636 \u47932  \u50629 \u47196 \u46300  \u8594  \u45800 \u44228 \u48324  \u51221 \u49328 </div>\
+          </div>\
+        </div>\
+      </div>\
+    </div>\
+  </div>\
+\
+  <div class="divider"></div>\
+\
+  <!-- Revenue -->\
+  <div class="section">\
+    <div class="section-label">\uc0\u49688 \u51061  \u47784 \u45944 </div>\
+    <div class="section-title">3\uc0\u44032 \u51648  \u49688 \u51061 \u50896 </div>\
+    <div class="rev-grid">\
+      <div class="rcard">\
+        <div class="rcard-icon" style="background:var(--color-background-info);">\
+          <i class="ti ti-percentage" style="color:var(--color-text-info);" aria-hidden="true"></i>\
+        </div>\
+        <div class="rcard-title">\uc0\u47588 \u52845  \u49688 \u49688 \u47308 </div>\
+        <div class="rcard-amount" style="color:var(--color-text-info);">5\'9610%</div>\
+        <div class="rcard-desc">\uc0\u44228 \u50557  \u49457 \u49324  \u49884  \u50504 \u51204 \u44208 \u51228 \'b7\u50640 \u49828 \u53356 \u47196  \u51060 \u50857 \u47308 \u47196  \u49688 \u52712 . \u54645 \u49900  \u49688 \u51061 \u50896 .</div>\
+      </div>\
+      <div class="rcard">\
+        <div class="rcard-icon" style="background:var(--color-background-success);">\
+          <i class="ti ti-chart-dots" style="color:var(--color-text-success);" aria-hidden="true"></i>\
+        </div>\
+        <div class="rcard-title">\uc0\u54532 \u47532 \u48120 \u50628  \u44592 \u54925 </div>\
+        <div class="rcard-amount" style="color:var(--color-text-success);">\uc0\u50976 \u47308 </div>\
+        <div class="rcard-desc">\uc0\u51204 \u47928  PM\u51060  \u53804 \u51077 \u46104 \u50612  \u54868 \u47732  \u49444 \u44228 \u49436 \'b7\u44592 \u54925 \u49436  \u50756 \u49457 . \u50976 \u47308  \u52968 \u49444 \u54021 .</div>\
+      </div>\
+      <div class="rcard">\
+        <div class="rcard-icon" style="background:var(--color-background-warning);">\
+          <i class="ti ti-speakerphone" style="color:var(--color-text-warning);" aria-hidden="true"></i>\
+        </div>\
+        <div class="rcard-title">\uc0\u51089 \u50629 \u51088  \u54532 \u47196 \u47784 \u49496 </div>\
+        <div class="rcard-amount" style="color:var(--color-text-warning);">\uc0\u44305 \u44256 </div>\
+        <div class="rcard-desc">\uc0\u44160 \u51613 \u46108  \u51089 \u50629 \u51088 \'b7\u54016 \u51032  \u49345 \u45800  \u45432 \u52636  \u44305 \u44256 . \u53944 \u47000 \u54589  \u44592 \u48152  \u44284 \u44552 .</div>\
+      </div>\
+    </div>\
+  </div>\
+\
+</div>}
