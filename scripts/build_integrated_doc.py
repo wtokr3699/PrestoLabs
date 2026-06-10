@@ -10,7 +10,7 @@ from docx.shared import Inches, Pt, RGBColor
 
 
 ROOT = Path("/Users/applw/Documents/Codex/PrestoLabs")
-OUTPUT = ROOT / "PrestoLabs_통합_기획서.docx"
+OUTPUT = ROOT / "docs" / "PrestoLabs_통합_기획서.docx"
 
 
 def set_cell_shading(cell, fill):

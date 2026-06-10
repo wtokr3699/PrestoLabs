@@ -81,9 +81,9 @@ PR 제목 예시:
 
 ### 기획 문서
 
-- 기준 문서는 `통합_기획서_PrestoLabs.md`입니다.
+- 기준 문서는 `docs/통합_기획서_PrestoLabs.md`입니다.
 - 주요 내용이 바뀌면 먼저 Markdown 문서를 수정합니다.
-- 제출용 문서가 필요하면 이후 `PrestoLabs_통합_기획서.docx`를 다시 생성합니다.
+- 제출용 문서가 필요하면 이후 `docs/PrestoLabs_통합_기획서.docx`를 다시 생성합니다.
 
 ### 홈페이지 문구/디자인
 
@@ -93,12 +93,13 @@ PR 제목 예시:
 
 ## 파일별 역할
 
-- `통합_기획서_PrestoLabs.md`: 최종 기획 기준 문서
-- `PrestoLabs_통합_기획서.docx`: 공유/제출용 문서
+- `docs/통합_기획서_PrestoLabs.md`: 최종 기획 기준 문서
+- `docs/PrestoLabs_통합_기획서.docx`: 공유/제출용 문서
 - `index.html`: 랜딩 페이지 구조
 - `styles.css`: 디자인 및 반응형 스타일
 - `script.js`: 간단한 인터랙션
-- `build_integrated_doc.py`: DOCX 재생성 스크립트
+- `scripts/build_integrated_doc.py`: DOCX 재생성 스크립트
+- `references/original-plans/`: 초기 팀원 원본 기획 자료
 
 ## 로컬 확인 방법
 
