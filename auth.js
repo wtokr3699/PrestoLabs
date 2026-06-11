@@ -11,7 +11,7 @@ const app = initializeApp(firebaseConfig);
 // 이제 'auth'와 'db' 객체를 다른 파일에서 import하여 사용할 수 있도록 export 합니다.
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-const analytics = getAnalytics(app); // Google Analytics를 사용한다면 이대로 둡니다.
+try { getAnalytics(app); } catch (_) {}
 
 // --- DOM refs --- (이 아래 코드는 기존 코드와 동일합니다)
 const overlay = document.getElementById("auth-overlay");
