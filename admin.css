@@ -1,0 +1,117 @@
+.admin-body { background: var(--bg-soft); min-height: 100vh; }
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 32px;
+  min-height: 70px;
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+}
+
+.admin-title {
+  flex: 1;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--muted);
+}
+
+.admin-main { max-width: 1200px; margin: 0 auto; padding: 36px 24px; }
+
+.admin-gate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 80px 0;
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stat-card strong { font-size: 36px; font-weight: 800; color: var(--text); }
+.stat-card span { font-size: 14px; color: var(--muted); }
+.stat-pending strong { color: #d97706; }
+.stat-done strong { color: #059669; }
+
+.table-wrap {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.requests-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.requests-table th {
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  background: var(--bg-soft);
+  border-bottom: 1px solid var(--line);
+}
+
+.requests-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+
+.requests-table tr:last-child td { border-bottom: 0; }
+.requests-table tr:hover td { background: #fafafe; }
+
+.desc-cell { max-width: 200px; color: var(--muted); }
+
+.tag-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--blue-soft);
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-pending { background: #fef3c7; color: #b45309; }
+.status-done    { background: #d1fae5; color: #065f46; }
+
+.mark-done-btn { font-size: 13px; padding: 6px 12px; }
+
+.admin-empty {
+  padding: 40px;
+  text-align: center;
+  color: var(--muted);
+}

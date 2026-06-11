@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>관리자 대시보드 | PrestoLabs</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./admin.css" />
+  </head>
+  <body class="admin-body">
+    <header class="admin-header">
+      <a class="brand" href="./index.html">
+        <span class="brand-mark">P</span>
+        <span class="brand-copy">
+          <strong>PrestoLabs</strong>
+          <small>Admin</small>
+        </span>
+      </a>
+      <span class="admin-title">요청서 관리</span>
+      <button class="ghost-btn" id="admin-logout-btn" type="button">로그아웃</button>
+    </header>
+
+    <main class="admin-main">
+      <div class="admin-gate" id="admin-loading">
+        <p>인증 확인 중...</p>
+      </div>
+
+      <div class="admin-gate" id="admin-denied" hidden>
+        <p>접근 권한이 없습니다.</p>
+        <a class="primary-btn" href="./index.html">홈으로</a>
+      </div>
+
+      <div id="admin-content" hidden>
+        <div class="admin-stats" id="admin-stats">
+          <div class="stat-card">
+            <strong id="total-count">0</strong>
+            <span>총 요청</span>
+          </div>
+          <div class="stat-card stat-pending">
+            <strong id="pending-count">0</strong>
+            <span>대기 중</span>
+          </div>
+          <div class="stat-card stat-done">
+            <strong id="done-count">0</strong>
+            <span>검토 완료</span>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="requests-table" id="requests-table">
+            <thead>
+              <tr>
+                <th>서비스</th>
+                <th>예산</th>
+                <th>일정</th>
+                <th>설명</th>
+                <th>제출자</th>
+                <th>상태</th>
+                <th>제출일</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="requests-tbody"></tbody>
+          </table>
+          <p class="admin-empty" id="no-requests" hidden>제출된 요청이 없습니다.</p>
+        </div>
+      </div>
+    </main>
+
+    <script type="module" src="./admin.js"></script>
+  </body>
+</html>
