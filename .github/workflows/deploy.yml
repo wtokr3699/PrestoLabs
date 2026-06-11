@@ -1,0 +1,54 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create firebase-config.js from secrets
+        run: |
+          cat > firebase-config.js << 'ENDOFFILE'
+          export const firebaseConfig = {
+            apiKey: "FIREBASE_API_KEY_PLACEHOLDER",
+            authDomain: "prestolabs-753ec.firebaseapp.com",
+            projectId: "prestolabs-753ec",
+            storageBucket: "prestolabs-753ec.firebasestorage.app",
+            messagingSenderId: "884774009430",
+            appId: "FIREBASE_APP_ID_PLACEHOLDER",
+            measurementId: "FIREBASE_MEASUREMENT_ID_PLACEHOLDER",
+          };
+          ENDOFFILE
+          sed -i "s|FIREBASE_API_KEY_PLACEHOLDER|${{ secrets.FIREBASE_API_KEY }}|g" firebase-config.js
+          sed -i "s|FIREBASE_APP_ID_PLACEHOLDER|${{ secrets.FIREBASE_APP_ID }}|g" firebase-config.js
+          sed -i "s|FIREBASE_MEASUREMENT_ID_PLACEHOLDER|${{ secrets.FIREBASE_MEASUREMENT_ID }}|g" firebase-config.js
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
