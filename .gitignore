@@ -13,6 +13,9 @@ prestolabs-poster-*.png
 .env
 .env.local
 
+# Firebase credentials — never commit
+firebase-config.js
+
 # Editor
 .vscode/
 .idea/
