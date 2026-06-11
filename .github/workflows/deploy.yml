@@ -25,21 +25,26 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Create firebase-config.js from secrets
+        env:
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+          FIREBASE_MEASUREMENT_ID: ${{ secrets.FIREBASE_MEASUREMENT_ID }}
         run: |
-          cat > firebase-config.js << 'ENDOFFILE'
-          export const firebaseConfig = {
-            apiKey: "FIREBASE_API_KEY_PLACEHOLDER",
-            authDomain: "prestolabs-753ec.firebaseapp.com",
-            projectId: "prestolabs-753ec",
-            storageBucket: "prestolabs-753ec.firebasestorage.app",
-            messagingSenderId: "884774009430",
-            appId: "FIREBASE_APP_ID_PLACEHOLDER",
-            measurementId: "FIREBASE_MEASUREMENT_ID_PLACEHOLDER",
+          python3 -c "
+          import os
+          content = '''export const firebaseConfig = {
+            apiKey: \"''' + os.environ['FIREBASE_API_KEY'] + '''\",
+            authDomain: \"prestolabs-753ec.firebaseapp.com\",
+            projectId: \"prestolabs-753ec\",
+            storageBucket: \"prestolabs-753ec.firebasestorage.app\",
+            messagingSenderId: \"884774009430\",
+            appId: \"''' + os.environ['FIREBASE_APP_ID'] + '''\",
+            measurementId: \"''' + os.environ['FIREBASE_MEASUREMENT_ID'] + '''\",
           };
-          ENDOFFILE
-          sed -i "s|FIREBASE_API_KEY_PLACEHOLDER|${{ secrets.FIREBASE_API_KEY }}|g" firebase-config.js
-          sed -i "s|FIREBASE_APP_ID_PLACEHOLDER|${{ secrets.FIREBASE_APP_ID }}|g" firebase-config.js
-          sed -i "s|FIREBASE_MEASUREMENT_ID_PLACEHOLDER|${{ secrets.FIREBASE_MEASUREMENT_ID }}|g" firebase-config.js
+          '''
+          open('firebase-config.js', 'w').write(content)
+          print('firebase-config.js created')
+          "
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
