@@ -132,8 +132,10 @@ function toKoreanError(code) {
     "auth/too-many-requests": "잠시 후 다시 시도해주세요.",
     "auth/popup-blocked": "팝업이 차단됐습니다. 팝업 허용 후 다시 시도해주세요.",
     "auth/account-exists-with-different-credential": "이미 다른 방법으로 가입된 이메일입니다.",
+    "auth/operation-not-allowed": "이메일 회원가입이 비활성화되어 있습니다.",
+    "auth/network-request-failed": "네트워크 오류가 발생했습니다. 다시 시도해주세요.",
   };
-  return map[code] ?? "오류가 발생했습니다. 다시 시도해주세요.";
+  return map[code] ?? `오류가 발생했습니다. (${code ?? "unknown"})`;
 }
 
 // --- Login ---
@@ -161,20 +163,15 @@ signupForm?.addEventListener("submit", async (e) => {
   const password = document.getElementById("signup-password").value;
 
   try {
-    // Modular SDK의 createUserWithEmailAndPassword 함수를 직접 사용합니다.
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
-
-    // user.updateProfile은 Firebase Authentication User 객체의 메서드입니다.
     await updateProfile(user, { displayName: name });
-
-    // Firestore에 사용자 정보 저장. doc, setDoc 함수를 직접 사용합니다.
-    await setDoc(doc(db, "users", user.uid), {
-      name,
-      email,
-      role: selectedRole,
-      createdAt: serverTimestamp(), // Firebase Modular SDK에서는 import된 serverTimestamp()를 사용합니다.
-    });
+    // Firestore 저장 실패해도 인증은 성공으로 처리
+    try {
+      await setDoc(doc(db, "users", user.uid), {
+        name, email, role: selectedRole, createdAt: serverTimestamp(),
+      });
+    } catch (_) {}
     closeAuth();
   } catch (err) {
     showError(signupError, toKoreanError(err.code));
