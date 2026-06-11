@@ -32,15 +32,18 @@ jobs:
         run: |
           python3 -c "
           import os
-          content = '''export const firebaseConfig = {
-            apiKey: \"''' + os.environ['FIREBASE_API_KEY'] + '''\",
+          api_key = os.environ['FIREBASE_API_KEY'].strip()
+          app_id = os.environ['FIREBASE_APP_ID'].strip()
+          measurement_id = os.environ['FIREBASE_MEASUREMENT_ID'].strip()
+          content = f'''export const firebaseConfig = {{
+            apiKey: \"{api_key}\",
             authDomain: \"prestolabs-753ec.firebaseapp.com\",
             projectId: \"prestolabs-753ec\",
             storageBucket: \"prestolabs-753ec.firebasestorage.app\",
             messagingSenderId: \"884774009430\",
-            appId: \"''' + os.environ['FIREBASE_APP_ID'] + '''\",
-            measurementId: \"''' + os.environ['FIREBASE_MEASUREMENT_ID'] + '''\",
-          };
+            appId: \"{app_id}\",
+            measurementId: \"{measurement_id}\",
+          }};
           '''
           open('firebase-config.js', 'w').write(content)
           print('firebase-config.js created')
