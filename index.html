@@ -143,9 +143,19 @@
                       <li>진행 방식: AI 요구사항 정리 후 전문가 매칭</li>
                     </ul>
                   </div>
+                  <p class="req-error" id="submit-error" hidden></p>
                   <div class="page-actions">
                     <button class="ghost-btn req-prev" type="button">이전</button>
                     <button class="panel-submit" id="panel-submit" type="button">AI 요청서 제출</button>
+                  </div>
+                </div>
+
+                <!-- 제출 완료 -->
+                <div class="request-page" id="req-page-success" hidden>
+                  <div class="submit-success">
+                    <div class="success-check">✓</div>
+                    <p class="success-title">요청서가 접수됐습니다!</p>
+                    <p class="success-body">48시간 내로 적합한 전문가를 찾아<br>이메일로 연락드리겠습니다.</p>
                   </div>
                 </div>
               </aside>

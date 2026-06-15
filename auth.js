@@ -4,16 +4,12 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, on
 import { getFirestore, doc, setDoc, getDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { firebaseConfig } from "./firebase-config.js";
 
-// Firebase 앱을 초기화합니다.
 const app = initializeApp(firebaseConfig);
-
-// 필요한 Firebase 서비스에 대한 참조를 가져옵니다.
-// 이제 'auth'와 'db' 객체를 다른 파일에서 import하여 사용할 수 있도록 export 합니다.
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 try { getAnalytics(app); } catch (_) {}
 
-// --- DOM refs --- (이 아래 코드는 기존 코드와 동일합니다)
+// --- DOM refs ---
 const overlay = document.getElementById("auth-overlay");
 const closeBtn = document.getElementById("auth-close");
 const loginBtn = document.getElementById("login-btn");
@@ -31,6 +27,9 @@ const signupError = document.getElementById("signup-error");
 
 const roleCards = Array.from(document.querySelectorAll(".role-card"));
 let selectedRole = "user";
+
+// Flag: 로그인 후 자동 제출 여부
+let pendingSubmit = false;
 
 // --- Modal open / close ---
 function openAuth(tab) {
@@ -146,7 +145,6 @@ loginForm?.addEventListener("submit", async (e) => {
   const password = document.getElementById("login-password").value;
 
   try {
-    // Modular SDK의 signInWithEmailAndPassword 함수를 직접 사용합니다.
     await signInWithEmailAndPassword(auth, email, password);
     closeAuth();
   } catch (err) {
@@ -166,7 +164,6 @@ signupForm?.addEventListener("submit", async (e) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     await updateProfile(user, { displayName: name });
-    // Firestore 저장 실패해도 인증은 성공으로 처리
     try {
       await setDoc(doc(db, "users", user.uid), {
         name, email, role: selectedRole, createdAt: serverTimestamp(),
@@ -182,15 +179,50 @@ signupForm?.addEventListener("submit", async (e) => {
 logoutBtn?.addEventListener("click", () => signOut(auth));
 
 // --- Request submission ---
-document.getElementById("panel-submit")?.addEventListener("click", async () => {
+
+function showSubmitError(msg) {
+  const errEl = document.getElementById("submit-error");
+  if (!errEl) return;
+  errEl.textContent = msg;
+  errEl.removeAttribute("hidden");
+}
+
+function clearSubmitError() {
+  const errEl = document.getElementById("submit-error");
+  if (errEl) errEl.setAttribute("hidden", "");
+}
+
+function showSuccessState() {
+  // 3단계 숨기고 성공 페이지 표시
+  for (let i = 1; i <= 3; i++) {
+    const el = document.getElementById(`req-page-${i}`);
+    if (el) el.hidden = true;
+  }
+  const successEl = document.getElementById("req-page-success");
+  if (successEl) successEl.hidden = false;
+
+  // 스텝 트래커 전체 완료 표시
+  document.querySelectorAll(".step-node").forEach((node) => {
+    node.classList.remove("is-active");
+    node.classList.add("is-done");
+  });
+}
+
+async function doSubmitRequest() {
+  clearSubmitError();
+
+  const description = document.getElementById("idea-input")?.value.trim() ?? "";
+  if (!description) {
+    showSubmitError("아이디어 설명을 입력해주세요.");
+    return;
+  }
+
   const selectedChip = document.querySelector(".select-chip.is-selected");
   const service = selectedChip?.textContent.trim() ?? "";
   const budget = document.getElementById("budget-select")?.value ?? "";
   const deadline = document.getElementById("deadline-select")?.value ?? "";
-  const description = document.getElementById("idea-input")?.value.trim() ?? "";
 
   const btn = document.getElementById("panel-submit");
-  const originalText = btn.textContent;
   btn.textContent = "제출 중...";
   btn.disabled = true;
 
@@ -206,17 +238,30 @@ document.getElementById("panel-submit")?.addEventListener("click", async () => {
       createdAt: serverTimestamp(),
     });
 
-    btn.textContent = "제출 완료!";
-    btn.classList.add("submit-done");
-    setTimeout(() => {
-      btn.textContent = originalText;
-      btn.disabled = false;
-      btn.classList.remove("submit-done");
-    }, 3000);
+    showSuccessState();
   } catch {
-    btn.textContent = originalText;
+    btn.textContent = "AI 요청서 제출";
     btn.disabled = false;
+    showSubmitError("제출에 실패했습니다. 잠시 후 다시 시도해주세요.");
   }
+}
+
+document.getElementById("panel-submit")?.addEventListener("click", async () => {
+  // 설명 입력 검증을 먼저 수행
+  clearSubmitError();
+  const description = document.getElementById("idea-input")?.value.trim() ?? "";
+  if (!description) {
+    showSubmitError("아이디어 설명을 입력해주세요.");
+    return;
+  }
+
+  // 로그인하지 않은 경우 인증 모달 열기 → 로그인 후 자동 제출
+  if (!auth.currentUser) {
+    pendingSubmit = true;
+    openAuth("signup");
+    return;
+  }
+  await doSubmitRequest();
 });
 
 // --- Auth state ---
@@ -242,6 +287,13 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     userNameDisplay.textContent = (user.displayName || user.email) + roleBadge;
+
+    // 로그인 전에 제출을 시도했다면 자동으로 제출
+    if (pendingSubmit) {
+      pendingSubmit = false;
+      closeAuth();
+      await doSubmitRequest();
+    }
   } else {
     loggedOutActions.hidden = false;
     loggedInActions.hidden = true;

@@ -105,7 +105,6 @@ serviceChipButtons.forEach((btn) => {
 });
 
 // Preview inputs
-panelSubmit?.addEventListener("click", updatePreview);
 budgetSelect?.addEventListener("change", updatePreview);
 deadlineSelect?.addEventListener("change", updatePreview);
 ideaInput?.addEventListener("input", updatePreview);

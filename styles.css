@@ -615,6 +615,49 @@ button, input, select, textarea { font: inherit; }
   background: #059669;
 }
 
+/* ── Request panel error ─────────────────────────────────── */
+.req-error {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: #dc2626;
+}
+
+/* ── Submit success state ────────────────────────────────── */
+.submit-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px 8px 28px;
+}
+
+.success-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--green-soft);
+  color: var(--green-text);
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+
+.success-title {
+  margin: 0 0 10px;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.success-body {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.75;
+}
+
 /* ── Utility ─────────────────────────────────────────────── */
 [hidden] { display: none !important; }
 
