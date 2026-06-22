@@ -3,6 +3,29 @@ import { adminDb } from "@/lib/firebaseAdmin";
 import { apiError, apiOk } from "@/lib/auth-middleware";
 import { Timestamp } from "firebase-admin/firestore";
 
+// 테스트 계정 삭제
+export async function DELETE(req: NextRequest) {
+  const secret = req.headers.get("x-seed-secret");
+  if (process.env.SEED_SECRET && secret !== process.env.SEED_SECRET) {
+    return apiError("인증 실패", 401);
+  }
+
+  const deleteIds = [
+    "seed_freelancer_1",
+    "seed_freelancer_2",
+    "seed_freelancer_3",
+    "seed_client_1",
+  ];
+
+  const batch = adminDb.batch();
+  for (const id of deleteIds) {
+    batch.delete(adminDb.collection("users").doc(id));
+  }
+  await batch.commit();
+
+  return apiOk({ deleted: deleteIds });
+}
+
 // 개발용 시드 데이터 — SEED_SECRET 헤더 필요
 export async function POST(req: NextRequest) {
   if (process.env.NODE_ENV === "production" && !process.env.SEED_SECRET) {
