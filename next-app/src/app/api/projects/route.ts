@@ -39,6 +39,7 @@ export async function GET(req: NextRequest) {
 
     return apiOk({ projects: paginated, total, page, limit });
   } catch (err: unknown) {
+    console.error("[GET /api/projects] 오류:", err);
     const message = err instanceof Error ? err.message : "조회 실패";
     return apiError(message, 500);
   }

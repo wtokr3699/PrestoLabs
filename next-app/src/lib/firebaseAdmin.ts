@@ -5,21 +5,32 @@ import { getAuth } from "firebase-admin/auth";
 function initAdmin() {
   if (getApps().length > 0) return;
 
-  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const projectId = process.env.FIREBASE_PROJECT_ID ?? "prestolabs-753ec";
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
+  // \n 리터럴과 실제 개행 모두 처리
+  const rawKey = process.env.FIREBASE_PRIVATE_KEY ?? "";
+  const privateKey = rawKey.includes("\\n")
+    ? rawKey.replace(/\\n/g, "\n")
+    : rawKey;
 
-  if (!projectId || !clientEmail || !privateKey) {
-    // 개발 환경에서 서비스 계정 키 없으면 경고만 출력
+  if (!clientEmail || !privateKey) {
     console.warn("[Firebase Admin] 서비스 계정 환경변수가 설정되지 않았습니다.");
-    // projectId만으로 초기화 (Firestore emulator 또는 로컬 개발용)
-    initializeApp({ projectId: projectId ?? "prestolabs-753ec" });
+    initializeApp({ projectId });
     return;
   }
 
-  initializeApp({
-    credential: cert({ projectId, clientEmail, privateKey }),
-  });
+  try {
+    initializeApp({
+      credential: cert({ projectId, clientEmail, privateKey }),
+    });
+    console.log("[Firebase Admin] 초기화 성공");
+  } catch (err) {
+    console.error("[Firebase Admin] cert() 초기화 오류:", err);
+    // 크레덴셜 없이 재시도 (읽기 전용 쿼리는 실패하지만 모듈 자체는 로드됨)
+    if (getApps().length === 0) {
+      initializeApp({ projectId });
+    }
+  }
 }
 
 initAdmin();
