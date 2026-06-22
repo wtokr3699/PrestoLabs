@@ -13,16 +13,18 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get("page") ?? "1");
     const limit = parseInt(searchParams.get("limit") ?? "10");
 
-    let query = adminDb
+    // 복합 인덱스 불필요: 단일 orderBy만 사용, 나머지는 코드 필터
+    const snapshot = await adminDb
       .collection("projects")
-      .where("deletedAt", "==", null)
-      .orderBy("createdAt", "desc");
+      .orderBy("createdAt", "desc")
+      .get();
 
-    if (status) query = query.where("status", "==", status);
-    if (category) query = query.where("category", "==", category);
+    let projects = snapshot.docs
+      .map((d) => ({ id: d.id, ...d.data() }))
+      .filter((p: Record<string, unknown>) => p.deletedAt === null || p.deletedAt === undefined);
 
-    const snapshot = await query.get();
-    let projects = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+    if (status) projects = projects.filter((p: Record<string, unknown>) => p.status === status);
+    if (category) projects = projects.filter((p: Record<string, unknown>) => p.category === category);
 
     // 키워드 검색 (간단한 클라이언트 사이드 필터 - 소규모 MVP)
     if (keyword) {

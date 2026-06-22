@@ -17,17 +17,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (contract.status !== "active") return apiError("진행 중인 계약만 승인할 수 있습니다.", 400);
 
     // 에스크로 결제 확인
-    const paymentSnap = await adminDb
+    const allPayments = await adminDb
       .collection("payments")
       .where("contractId", "==", id)
-      .where("status", "==", "escrowed")
-      .limit(1)
       .get();
-
-    if (paymentSnap.empty) return apiError("에스크로 결제 내역이 없습니다.", 400);
+    const escrowedDoc = allPayments.docs.find((d) => d.data().status === "escrowed");
+    if (!escrowedDoc) return apiError("에스크로 결제 내역이 없습니다.", 400);
 
     const now = Timestamp.now();
-    const paymentDoc = paymentSnap.docs[0];
+    const paymentDoc = escrowedDoc;
     const payment = paymentDoc.data();
 
     const fee = Math.floor(payment.amount * 0.1);

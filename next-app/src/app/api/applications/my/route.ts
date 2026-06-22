@@ -6,11 +6,18 @@ export async function GET(req: NextRequest) {
   try {
     const { uid } = await verifyAuth(req);
 
-    const snap = await adminDb
+    const rawSnap = await adminDb
       .collection("applications")
       .where("freelancerId", "==", uid)
-      .orderBy("createdAt", "desc")
       .get();
+
+    const snap = {
+      docs: rawSnap.docs.sort((a, b) => {
+        const ta = a.data().createdAt?.seconds ?? 0;
+        const tb = b.data().createdAt?.seconds ?? 0;
+        return tb - ta;
+      }),
+    };
 
     const applications = await Promise.all(
       snap.docs.map(async (d) => {

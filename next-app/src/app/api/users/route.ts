@@ -10,18 +10,22 @@ export async function GET(req: NextRequest) {
     const page = Math.max(1, parseInt(searchParams.get("page") ?? "1"));
     const limit = 12;
 
-    let query = adminDb
+    // 단일 where만 사용, 나머지는 코드 필터
+    const snapshot = await adminDb
       .collection("users")
       .where("role", "==", "freelancer")
-      .where("profileComplete", "==", true)
-      .where("deletedAt", "==", null);
+      .get();
+
+    let users = snapshot.docs
+      .map((d) => ({ uid: d.id, ...d.data() }))
+      .filter((u: Record<string, unknown>) => u.profileComplete === true && !u.deletedAt);
 
     if (skill) {
-      query = query.where("skills", "array-contains", skill) as typeof query;
+      users = users.filter(
+        (u: Record<string, unknown>) =>
+          Array.isArray(u.skills) && (u.skills as string[]).includes(skill)
+      );
     }
-
-    const snapshot = await query.get();
-    let users = snapshot.docs.map((d) => ({ uid: d.id, ...d.data() }));
 
     // 정렬
     if (sort === "rating") {

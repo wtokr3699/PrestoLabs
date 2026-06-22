@@ -30,11 +30,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
     // closed로 전환 시 pending 지원자 전원에게 알림
     if (newStatus === "closed") {
-      const appsSnap = await adminDb
+      const allApps = await adminDb
         .collection("applications")
         .where("projectId", "==", id)
-        .where("status", "==", "pending")
         .get();
+      const appsSnap = { docs: allApps.docs.filter((d) => d.data().status === "pending") };
 
       for (const appDoc of appsSnap.docs) {
         // 일괄 거절

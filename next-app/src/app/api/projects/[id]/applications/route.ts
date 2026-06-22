@@ -15,14 +15,23 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const isClient = project.clientId === uid;
 
-    let query = adminDb.collection("applications").where("projectId", "==", id);
-    // 프리랜서는 본인 지원서만 조회
-    if (!isClient) {
-      query = query.where("freelancerId", "==", uid);
-    }
+    const snap = await adminDb
+      .collection("applications")
+      .where("projectId", "==", id)
+      .get();
 
-    const snap = await query.orderBy("createdAt", "desc").get();
-    const applications = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    let applications = snap.docs
+      .map((d) => ({ id: d.id, ...d.data() }))
+      .sort((a: Record<string, unknown>, b: Record<string, unknown>) => {
+        const ta = (a.createdAt as { seconds?: number })?.seconds ?? 0;
+        const tb = (b.createdAt as { seconds?: number })?.seconds ?? 0;
+        return tb - ta;
+      });
+
+    // 프리랜서는 본인 지원서만
+    if (!isClient) {
+      applications = applications.filter((a: Record<string, unknown>) => a.freelancerId === uid);
+    }
 
     return apiOk({ applications });
   } catch (err: unknown) {
@@ -52,15 +61,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       return apiError("현재 지원을 받지 않는 프로젝트입니다.", 400);
     }
 
-    // 중복 지원 방지
-    const existing = await adminDb
+    // 중복 지원 방지 (단일 where로 단순화)
+    const existingSnap = await adminDb
       .collection("applications")
       .where("projectId", "==", id)
-      .where("freelancerId", "==", uid)
-      .limit(1)
       .get();
-
-    if (!existing.empty) return apiError("이미 지원한 프로젝트입니다.", 409);
+    const alreadyApplied = existingSnap.docs.some((d) => d.data().freelancerId === uid);
+    if (alreadyApplied) return apiError("이미 지원한 프로젝트입니다.", 409);
 
     const body = await req.json();
     const { coverLetter, proposedBudget, estimatedDays } = body;

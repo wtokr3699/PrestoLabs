@@ -6,12 +6,20 @@ export async function GET(req: NextRequest) {
   try {
     const { uid } = await verifyAuth(req);
 
-    const snap = await adminDb
+    const rawSnap = await adminDb
       .collection("bookmarks")
       .where("userId", "==", uid)
-      .where("deletedAt", "==", null)
-      .orderBy("createdAt", "desc")
       .get();
+
+    const snap = {
+      docs: rawSnap.docs
+        .filter((d) => !d.data().deletedAt)
+        .sort((a, b) => {
+          const ta = a.data().createdAt?.seconds ?? 0;
+          const tb = b.data().createdAt?.seconds ?? 0;
+          return tb - ta;
+        }),
+    };
 
     // 프로젝트 상세 정보를 함께 조회
     const bookmarks = await Promise.all(

@@ -30,11 +30,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     batch.update(appSnap.ref, { status: "accepted", acceptedAt: now });
 
     // 다른 pending 지원자 일괄 자동 거절 (Trigger 3)
-    const otherApps = await adminDb
+    const allProjectApps = await adminDb
       .collection("applications")
       .where("projectId", "==", projectId)
-      .where("status", "==", "pending")
       .get();
+    const otherApps = { docs: allProjectApps.docs.filter((d) => d.data().status === "pending") };
 
     for (const otherDoc of otherApps.docs) {
       if (otherDoc.id === id) continue;

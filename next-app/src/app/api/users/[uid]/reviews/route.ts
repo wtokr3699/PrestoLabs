@@ -6,13 +6,18 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ uid:
   try {
     const { uid } = await params;
 
-    const snap = await adminDb
+    const rawSnap = await adminDb
       .collection("reviews")
       .where("revieweeId", "==", uid)
-      .orderBy("createdAt", "desc")
       .get();
 
-    const reviews = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    const reviews = rawSnap.docs
+      .map((d) => ({ id: d.id, ...d.data() }))
+      .sort((a: Record<string, unknown>, b: Record<string, unknown>) => {
+        const ta = (a.createdAt as { seconds?: number })?.seconds ?? 0;
+        const tb = (b.createdAt as { seconds?: number })?.seconds ?? 0;
+        return tb - ta;
+      });
     return apiOk({ reviews });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "조회 실패";
