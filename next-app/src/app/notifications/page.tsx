@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
 import { Notification, NOTIFICATION_MESSAGES } from "@/types";
@@ -19,12 +19,18 @@ export default function NotificationsPage() {
 
     const q = query(
       collection(db, "notifications"),
-      where("userId", "==", user.uid),
-      orderBy("createdAt", "desc")
+      where("userId", "==", user.uid)
     );
 
     return onSnapshot(q, (snap) => {
-      setNotifications(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Notification));
+      const sorted = snap.docs
+        .map((d) => ({ id: d.id, ...d.data() }) as Notification)
+        .sort((a, b) => {
+          const ta = (a.createdAt as unknown as { seconds?: number })?.seconds ?? 0;
+          const tb = (b.createdAt as unknown as { seconds?: number })?.seconds ?? 0;
+          return tb - ta;
+        });
+      setNotifications(sorted);
     });
   }, [user]);
 

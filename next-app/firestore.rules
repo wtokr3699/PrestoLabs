@@ -1,0 +1,36 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 공개 읽기: 프로젝트 목록/상세, 유저 공개 프로필, 리뷰
+    match /projects/{id} {
+      allow read: if true;
+    }
+    match /users/{id} {
+      allow read: if true;
+    }
+    match /reviews/{id} {
+      allow read: if true;
+    }
+
+    // 로그인한 사용자만 읽기 가능한 데이터
+    match /notifications/{id} {
+      allow read: if request.auth != null;
+    }
+    match /applications/{id} {
+      allow read: if request.auth != null;
+    }
+    match /contracts/{id} {
+      allow read: if request.auth != null;
+    }
+    match /payments/{id} {
+      allow read: if request.auth != null;
+    }
+    match /bookmarks/{id} {
+      allow read: if request.auth != null;
+    }
+
+    // 모든 쓰기는 서버 Admin SDK를 통해서만 처리
+    // (클라이언트 직접 쓰기 차단)
+  }
+}

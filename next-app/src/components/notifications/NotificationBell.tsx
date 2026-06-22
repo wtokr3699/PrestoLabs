@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, query, where, onSnapshot, orderBy, limit } from "firebase/firestore";
+import { collection, query, where, onSnapshot, limit } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
 import { Notification, NOTIFICATION_MESSAGES } from "@/types";
@@ -16,15 +16,23 @@ export function NotificationBell() {
   useEffect(() => {
     if (!user) return;
 
+    // 단일 where만 사용, 정렬은 JS에서 처리 (복합 인덱스 불필요)
     const q = query(
       collection(db, "notifications"),
       where("userId", "==", user.uid),
-      orderBy("createdAt", "desc"),
-      limit(20)
+      limit(30)
     );
 
     const unsub = onSnapshot(q, (snap) => {
-      setNotifications(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Notification));
+      const sorted = snap.docs
+        .map((d) => ({ id: d.id, ...d.data() }) as Notification)
+        .sort((a, b) => {
+          const ta = (a.createdAt as unknown as { seconds?: number })?.seconds ?? 0;
+          const tb = (b.createdAt as unknown as { seconds?: number })?.seconds ?? 0;
+          return tb - ta;
+        })
+        .slice(0, 20);
+      setNotifications(sorted);
     });
 
     return unsub;
