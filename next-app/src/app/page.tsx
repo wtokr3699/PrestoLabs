@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const categories = [
   { icon: "🚀", label: "랜딩페이지", value: "landing" },
@@ -11,7 +15,35 @@ const categories = [
   { icon: "📢", label: "마케팅", value: "marketing" },
 ];
 
+type Expert = {
+  uid: string;
+  name: string;
+  bio: string;
+  skills: string[];
+  hourlyRate: number | null;
+  avgRating: number;
+  reviewCount: number;
+  avatarUrl: string | null;
+};
+
+function StarRating({ value }: { value: number }) {
+  return (
+    <span className="text-yellow-400 text-sm">
+      {"★".repeat(Math.round(value))}{"☆".repeat(5 - Math.round(value))}
+      <span className="text-gray-500 ml-1 text-xs">{value.toFixed(1)}</span>
+    </span>
+  );
+}
+
 export default function Home() {
+  const [experts, setExperts] = useState<Expert[]>([]);
+
+  useEffect(() => {
+    axios.get("/api/users?sort=rating&limit=6")
+      .then((res) => setExperts((res.data.users ?? []).slice(0, 6)))
+      .catch(() => {});
+  }, []);
+
   return (
     <div>
       {/* Hero */}
@@ -56,6 +88,50 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      {/* 추천 전문가 */}
+      {experts.length > 0 && (
+        <section className="bg-gray-50 py-16">
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold">추천 전문가</h2>
+              <Link href="/experts" className="text-sm text-[#7c3aed] hover:underline">
+                전체 보기 →
+              </Link>
+            </div>
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {experts.map((e) => (
+                <Link
+                  key={e.uid}
+                  href={`/experts/${e.uid}`}
+                  className="bg-white rounded-2xl border border-gray-200 p-5 hover:border-[#7c3aed] hover:shadow-sm transition"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-full bg-[#7c3aed] text-white flex items-center justify-center font-bold text-sm shrink-0">
+                      {e.name?.[0] ?? "?"}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-sm truncate">{e.name}</p>
+                      {e.reviewCount > 0 && <StarRating value={e.avgRating} />}
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500 line-clamp-2 mb-3">{e.bio}</p>
+                  <div className="flex flex-wrap gap-1">
+                    {e.skills.slice(0, 3).map((s) => (
+                      <span key={s} className="text-xs bg-purple-50 text-[#7c3aed] px-2 py-0.5 rounded-full">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                  {e.hourlyRate && (
+                    <p className="text-xs text-gray-400 mt-2">시간당 {e.hourlyRate.toLocaleString()}원~</p>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 프로세스 */}
       <section className="bg-white py-16">
