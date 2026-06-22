@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+:root {
+  --purple: #7c3aed;
+  --bg-soft: #f7f8fa;
+  --radius-xl: 28px;
+}
+
+body {
+  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg-soft);
+  color: #1a1a1a;
+}
