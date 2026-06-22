@@ -5,8 +5,39 @@ import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { useAuth } from "@/contexts/AuthContext";
 import { Project, Application, PROJECT_STATUS_LABELS, PROJECT_CATEGORY_LABELS } from "@/types";
-import { Timestamp } from "firebase/firestore";
+import { Timestamp, collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import Link from "next/link";
+
+type Review = {
+  id: string;
+  reviewerId: string;
+  revieweeId: string;
+  reviewerRole: "client" | "freelancer";
+  rating: number;
+  comment: string;
+  tags: string[];
+  createdAt: { seconds: number };
+};
+
+const REVIEW_TAGS = ["소통 원활", "기한 준수", "퀄리티 우수", "재계약 의향", "친절함", "전문성"];
+
+function StarRating({ value, onChange }: { value: number; onChange?: (v: number) => void }) {
+  return (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map((s) => (
+        <button
+          key={s}
+          type="button"
+          onClick={() => onChange?.(s)}
+          className={`text-2xl transition ${onChange ? "cursor-pointer" : "cursor-default"} ${s <= value ? "text-yellow-400" : "text-gray-300"}`}
+        >
+          ★
+        </button>
+      ))}
+    </div>
+  );
+}
 
 export default function ProjectDetailPage() {
   const { id } = useParams() as { id: string };
@@ -23,9 +54,20 @@ export default function ProjectDetailPage() {
   const [acceptForm, setAcceptForm] = useState<{ appId: string; budget: string } | null>(null);
   const [error, setError] = useState("");
 
+  // 리뷰 관련 상태
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [myReview, setMyReview] = useState<Review | null>(null);
+  const [reviewForm, setReviewForm] = useState({ rating: 0, comment: "", tags: [] as string[] });
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [reviewDone, setReviewDone] = useState(false);
+
   useEffect(() => {
     fetchProject();
   }, [id]);
+
+  useEffect(() => {
+    if (project?.status === "completed") fetchReviews();
+  }, [project?.status]);
 
   async function fetchProject() {
     try {
@@ -101,6 +143,48 @@ export default function ProjectDetailPage() {
     } catch {
       alert("거절에 실패했습니다.");
     }
+  }
+
+  async function fetchReviews() {
+    try {
+      const q = query(collection(db, "reviews"), where("projectId", "==", id));
+      const snap = await getDocs(q);
+      const list = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Review));
+      setReviews(list);
+      if (user) {
+        const mine = list.find((r) => r.reviewerId === user.uid);
+        if (mine) { setMyReview(mine); setReviewDone(true); }
+      }
+    } catch { /* 조용히 무시 */ }
+  }
+
+  async function handleReviewSubmit() {
+    if (!user || reviewForm.rating === 0) return;
+    setReviewLoading(true);
+    try {
+      const token = await user.getIdToken();
+      await axios.post("/api/reviews", { projectId: id, ...reviewForm }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setReviewDone(true);
+      await fetchReviews();
+    } catch (err: unknown) {
+      const msg = axios.isAxiosError(err) ? err.response?.data?.error : "리뷰 작성에 실패했습니다.";
+      if (axios.isAxiosError(err) && err.response?.status === 409) {
+        setReviewDone(true);
+      } else {
+        alert(msg);
+      }
+    } finally {
+      setReviewLoading(false);
+    }
+  }
+
+  function toggleTag(tag: string) {
+    setReviewForm((prev) => ({
+      ...prev,
+      tags: prev.tags.includes(tag) ? prev.tags.filter((t) => t !== tag) : [...prev.tags, tag],
+    }));
   }
 
   async function handleClose() {
@@ -183,6 +267,91 @@ export default function ProjectDetailPage() {
                 <span className="font-semibold">예상 총 단가</span>
                 <span className="font-bold text-[#7c3aed]">{project.aiAnalysis.totalEstimate.toLocaleString()}원</span>
               </div>
+            </div>
+          )}
+
+          {/* 리뷰 섹션 — 완료된 프로젝트 + 참여자만 */}
+          {project.status === "completed" && user && (
+            <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
+              <h2 className="font-semibold">프로젝트 리뷰</h2>
+
+              {/* 내 리뷰 작성 */}
+              {reviewDone ? (
+                <div className="bg-green-50 rounded-xl p-4 text-center">
+                  <p className="text-green-700 font-medium text-sm">리뷰를 작성했습니다.</p>
+                  {myReview && (
+                    <div className="mt-2">
+                      <StarRating value={myReview.rating} />
+                      <p className="text-sm text-gray-600 mt-1">{myReview.comment}</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="border border-gray-200 rounded-xl p-4 space-y-3">
+                  <p className="text-sm font-medium text-gray-700">내 리뷰 작성</p>
+                  <StarRating
+                    value={reviewForm.rating}
+                    onChange={(v) => setReviewForm((p) => ({ ...p, rating: v }))}
+                  />
+                  <textarea
+                    value={reviewForm.comment}
+                    onChange={(e) => setReviewForm((p) => ({ ...p, comment: e.target.value }))}
+                    placeholder="협업 경험을 자유롭게 작성해주세요."
+                    rows={3}
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c3aed] resize-none"
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    {REVIEW_TAGS.map((tag) => (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => toggleTag(tag)}
+                        className={`text-xs px-3 py-1.5 rounded-full border transition ${
+                          reviewForm.tags.includes(tag)
+                            ? "bg-[#7c3aed] text-white border-[#7c3aed]"
+                            : "border-gray-300 text-gray-600 hover:border-[#7c3aed]"
+                        }`}
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    onClick={handleReviewSubmit}
+                    disabled={reviewLoading || reviewForm.rating === 0 || !reviewForm.comment}
+                    className="w-full py-2.5 rounded-xl bg-[#7c3aed] text-white text-sm font-medium hover:bg-purple-700 transition disabled:opacity-40"
+                  >
+                    {reviewLoading ? "제출 중..." : "리뷰 등록"}
+                  </button>
+                </div>
+              )}
+
+              {/* 모든 리뷰 표시 */}
+              {reviews.length > 0 && (
+                <div className="space-y-3 pt-2 border-t border-gray-100">
+                  <p className="text-sm text-gray-500">{reviews.length}개의 리뷰</p>
+                  {reviews.map((r) => (
+                    <div key={r.id} className="bg-gray-50 rounded-xl p-4 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <StarRating value={r.rating} />
+                        <span className="text-xs text-gray-400">
+                          {r.reviewerRole === "client" ? "의뢰인" : "프리랜서"}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-700">{r.comment}</p>
+                      {r.tags?.length > 0 && (
+                        <div className="flex flex-wrap gap-1 pt-1">
+                          {r.tags.map((tag) => (
+                            <span key={tag} className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
