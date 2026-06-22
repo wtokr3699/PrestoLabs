@@ -15,13 +15,20 @@ export async function GET(req: NextRequest) {
 
     const now = Timestamp.now();
 
-    // 마감일이 지났고 모집 중/검토 중인 프로젝트
-    const overdueSnap = await adminDb
+    // 단일 where 사용, 나머지는 코드 필터
+    const allActiveProjects = await adminDb
       .collection("projects")
       .where("status", "in", ["open", "in_review"])
-      .where("deadline", "<", now)
-      .where("deletedAt", "==", null)
       .get();
+
+    const overdueSnap = {
+      docs: allActiveProjects.docs.filter((d) => {
+        const data = d.data();
+        if (data.deletedAt) return false;
+        const deadline = data.deadline as { seconds?: number } | null;
+        return deadline && (deadline.seconds ?? 0) < now.seconds;
+      }),
+    };
 
     let closedCount = 0;
 
@@ -29,11 +36,11 @@ export async function GET(req: NextRequest) {
       const projectId = projectDoc.id;
 
       // pending 지원자 조회
-      const appsSnap = await adminDb
+      const allApps = await adminDb
         .collection("applications")
         .where("projectId", "==", projectId)
-        .where("status", "==", "pending")
         .get();
+      const appsSnap = { docs: allApps.docs.filter((d) => d.data().status === "pending") };
 
       const batch = adminDb.batch();
 

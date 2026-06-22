@@ -6,14 +6,19 @@ export async function GET(req: NextRequest) {
   try {
     const { uid } = await verifyAuth(req);
 
-    const snap = await adminDb
+    const rawSnap = await adminDb
       .collection("notifications")
       .where("userId", "==", uid)
-      .orderBy("createdAt", "desc")
-      .limit(50)
       .get();
 
-    const notifications = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    const notifications = rawSnap.docs
+      .map((d) => ({ id: d.id, ...d.data() }))
+      .sort((a: Record<string, unknown>, b: Record<string, unknown>) => {
+        const ta = (a.createdAt as { seconds?: number })?.seconds ?? 0;
+        const tb = (b.createdAt as { seconds?: number })?.seconds ?? 0;
+        return tb - ta;
+      })
+      .slice(0, 50);
     return apiOk({ notifications });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "조회 실패";

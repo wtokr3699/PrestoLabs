@@ -24,15 +24,13 @@ export async function POST(req: NextRequest) {
     const role = userSnap.data()?.role as "client" | "freelancer";
 
     // 계약서에서 상대방 uid 찾기
-    const contractSnap = await adminDb
+    const allContracts = await adminDb
       .collection("contracts")
       .where("projectId", "==", projectId)
-      .where("status", "==", "completed")
-      .limit(1)
       .get();
-
-    if (contractSnap.empty) return apiError("완료된 계약서를 찾을 수 없습니다.", 404);
-    const contract = contractSnap.docs[0].data();
+    const completedContract = allContracts.docs.find((d) => d.data().status === "completed");
+    if (!completedContract) return apiError("완료된 계약서를 찾을 수 없습니다.", 404);
+    const contract = completedContract.data();
 
     const isClient = contract.clientId === uid;
     const isFreelancer = contract.freelancerId === uid;
@@ -41,14 +39,12 @@ export async function POST(req: NextRequest) {
     const revieweeId = isClient ? contract.freelancerId : contract.clientId;
 
     // 중복 리뷰 방지
-    const existingReview = await adminDb
+    const reviewsByProject = await adminDb
       .collection("reviews")
       .where("projectId", "==", projectId)
-      .where("reviewerId", "==", uid)
-      .limit(1)
       .get();
-
-    if (!existingReview.empty) return apiError("이미 리뷰를 작성했습니다.", 409);
+    const alreadyReviewed = reviewsByProject.docs.some((d) => d.data().reviewerId === uid);
+    if (alreadyReviewed) return apiError("이미 리뷰를 작성했습니다.", 409);
 
     const now = Timestamp.now();
 
