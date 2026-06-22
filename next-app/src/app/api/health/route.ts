@@ -1,14 +1,10 @@
-import { NextRequest } from "next/server";
-
-export async function GET(_req: NextRequest) {
+export async function GET() {
   const results: Record<string, unknown> = {};
 
   // 1. 환경변수 확인 (값 노출 안 함)
   results.hasProjectId = !!process.env.FIREBASE_PROJECT_ID;
   results.hasClientEmail = !!process.env.FIREBASE_CLIENT_EMAIL;
   results.hasPrivateKey = !!process.env.FIREBASE_PRIVATE_KEY;
-  results.privateKeyLength = process.env.FIREBASE_PRIVATE_KEY?.length ?? 0;
-  results.privateKeyStart = process.env.FIREBASE_PRIVATE_KEY?.slice(0, 30) ?? "";
 
   // 2. Firebase Admin 초기화 테스트
   try {

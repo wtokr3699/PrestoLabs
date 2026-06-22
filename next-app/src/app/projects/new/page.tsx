@@ -15,11 +15,6 @@ export default function NewProjectPage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
-  const [aiResult, setAiResult] = useState<{
-    features: { name: string; description: string; estimatedPrice: number }[];
-    totalEstimate: number;
-    report: string;
-  } | null>(null);
   const [error, setError] = useState("");
 
   const [form, setForm] = useState({
@@ -84,10 +79,9 @@ export default function NewProjectPage() {
       });
 
       if (res.data.aiAnalysis) {
-        setAiResult(res.data.aiAnalysis);
         router.push(`/projects/${projectId}/edit`);
       }
-    } catch (err) {
+    } catch {
       setError("AI 분석 요청에 실패했습니다.");
     } finally {
       setAiLoading(false);

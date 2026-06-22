@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { verifyAuth, apiError, apiOk } from "@/lib/auth-middleware";
+import { isSelfAssignableRole } from "@/lib/roles";
 import { Timestamp } from "firebase-admin/firestore";
 
 export async function GET(req: NextRequest) {
@@ -25,6 +26,11 @@ export async function PATCH(req: NextRequest) {
       "skills", "hourlyRate", "portfolioUrl",
       "companyName", "businessField",
     ];
+
+    // 일반 사용자는 admin 역할로 변경 불가
+    if ("role" in body && !isSelfAssignableRole(body.role)) {
+      return apiError("유효하지 않은 역할입니다.", 400);
+    }
 
     const updates: Record<string, unknown> = { updatedAt: Timestamp.now() };
     for (const key of allowed) {

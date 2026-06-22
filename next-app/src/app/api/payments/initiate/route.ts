@@ -13,12 +13,36 @@ export async function POST(req: NextRequest) {
     const contract = contractSnap.data()!;
 
     if (contract.clientId !== uid) return apiError("결제 권한이 없습니다.", 403);
+    if (contract.status !== "active") return apiError("진행 중인 계약만 결제할 수 있습니다.", 400);
     if (!contract.clientSigned || !contract.freelancerSigned) {
       return apiError("양측 서명이 완료되어야 결제할 수 있습니다.", 400);
     }
 
-    const orderId = `wb_${Date.now()}_${contractId.slice(0, 8)}`;
     const amount = contract.agreedBudget;
+    const existingPayments = await adminDb
+      .collection("payments")
+      .where("contractId", "==", contractId)
+      .get();
+
+    const activePayment = existingPayments.docs.find((doc) =>
+      ["pending", "escrowed", "released"].includes(doc.data().status)
+    );
+
+    if (activePayment) {
+      const payment = activePayment.data();
+
+      if (payment.status === "pending") {
+        return apiOk({
+          paymentId: activePayment.id,
+          orderId: payment.pgOrderId,
+          amount: payment.amount,
+        });
+      }
+
+      return apiError("이미 처리된 결제 내역이 있습니다.", 409);
+    }
+
+    const orderId = `wb_${Date.now()}_${contractId.slice(0, 8)}`;
 
     // Firestore에 pending 결제 레코드 생성
     // 실제 Toss 결제창 호출은 클라이언트(SDK)에서 처리

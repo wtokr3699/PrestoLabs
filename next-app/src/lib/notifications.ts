@@ -1,4 +1,4 @@
-import { FieldValue, Timestamp, WriteBatch } from "firebase-admin/firestore";
+import { Timestamp, WriteBatch } from "firebase-admin/firestore";
 import { adminDb } from "./firebaseAdmin";
 import { NotificationType } from "@/types";
 

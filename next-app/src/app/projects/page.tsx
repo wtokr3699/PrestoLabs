@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import axios from "axios";
 import Link from "next/link";
 import { Project, ProjectCategory, ProjectStatus, PROJECT_CATEGORY_LABELS, PROJECT_STATUS_LABELS } from "@/types";
@@ -33,59 +33,64 @@ export default function ProjectsPage() {
 
 function ProjectsContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
 
   const [projects, setProjects] = useState<Project[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
 
+  const [draftKeyword, setDraftKeyword] = useState(searchParams.get("q") ?? "");
   const [keyword, setKeyword] = useState(searchParams.get("q") ?? "");
   const [category, setCategory] = useState<string>(searchParams.get("category") ?? "");
   const [status, setStatus] = useState<string>(searchParams.get("status") ?? "");
   const [sort, setSort] = useState("newest");
 
-  const fetchProjects = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (keyword) params.set("q", keyword);
-      if (category) params.set("category", category);
-      if (status) params.set("status", status);
-      params.set("page", String(page));
-      params.set("limit", "10");
-
-      const res = await axios.get(`/api/projects?${params}`);
-      let items = res.data.projects as Project[];
-
-      // 정렬 클라이언트 사이드
-      if (sort === "deadline") {
-        items = [...items].sort((a, b) => {
-          const ta = (a.deadline as unknown as Timestamp)?.seconds ?? 0;
-          const tb = (b.deadline as unknown as Timestamp)?.seconds ?? 0;
-          return ta - tb;
-        });
-      } else if (sort === "budget") {
-        items = [...items].sort((a, b) => (b.budgetMax ?? 0) - (a.budgetMax ?? 0));
-      }
-
-      setProjects(items);
-      setTotal(res.data.total);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [keyword, category, status, page, sort]);
-
   useEffect(() => {
-    fetchProjects();
-  }, [fetchProjects]);
+    let cancelled = false;
+
+    async function fetchProjects() {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams();
+        if (keyword) params.set("q", keyword);
+        if (category) params.set("category", category);
+        if (status) params.set("status", status);
+        params.set("page", String(page));
+        params.set("limit", "10");
+
+        const res = await axios.get(`/api/projects?${params}`);
+        let items = res.data.projects as Project[];
+
+        // 정렬 클라이언트 사이드
+        if (sort === "deadline") {
+          items = [...items].sort((a, b) => {
+            const ta = (a.deadline as unknown as Timestamp)?.seconds ?? 0;
+            const tb = (b.deadline as unknown as Timestamp)?.seconds ?? 0;
+            return ta - tb;
+          });
+        } else if (sort === "budget") {
+          items = [...items].sort((a, b) => (b.budgetMax ?? 0) - (a.budgetMax ?? 0));
+        }
+
+        if (!cancelled) {
+          setProjects(items);
+          setTotal(res.data.total);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    void fetchProjects();
+    return () => { cancelled = true; };
+  }, [keyword, category, status, page, sort]);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     setPage(1);
-    fetchProjects();
+    setKeyword(draftKeyword);
   }
 
   return (
@@ -105,8 +110,8 @@ function ProjectsContent() {
         <input
           type="text"
           placeholder="프로젝트 검색..."
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
+          value={draftKeyword}
+          onChange={(e) => setDraftKeyword(e.target.value)}
           className="flex-1 border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c3aed]"
         />
         <button
@@ -190,9 +195,10 @@ function ProjectsContent() {
 }
 
 function ProjectCard({ project }: { project: Project }) {
+  const [now] = useState(() => Date.now());
   const deadline = (project.deadline as unknown as Timestamp)?.toDate?.();
   const daysLeft = deadline
-    ? Math.ceil((deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    ? Math.ceil((deadline.getTime() - now) / (1000 * 60 * 60 * 24))
     : null;
 
   const statusColor: Record<string, string> = {

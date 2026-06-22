@@ -5,7 +5,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import Link from "next/link";
-import { UserRole } from "@/types";
+import { UserProfile } from "@/types";
+import type { User } from "firebase/auth";
 
 const SKILLS = [
   "React", "Next.js", "Vue", "Angular", "Node.js", "Python", "Java",
@@ -16,22 +17,31 @@ const BUSINESS_FIELDS = [
   "IT/스타트업", "전자상거래", "금융", "교육", "의료", "패션", "식품", "부동산", "기타",
 ];
 
+type ProfileForm = {
+  name: string;
+  bio: string;
+  skills: string[];
+  hourlyRate: string;
+  portfolioUrl: string;
+  companyName: string;
+  businessField: string;
+};
+
+function createProfileForm(profile: UserProfile): ProfileForm {
+  return {
+    name: profile.name ?? "",
+    bio: profile.bio ?? "",
+    skills: profile.skills ?? [],
+    hourlyRate: String(profile.hourlyRate ?? ""),
+    portfolioUrl: profile.portfolioUrl ?? "",
+    companyName: profile.companyName ?? "",
+    businessField: profile.businessField ?? "",
+  };
+}
+
 export default function ProfilePage() {
   const { user, profile, loading, refreshProfile } = useAuth();
   const router = useRouter();
-
-  const [form, setForm] = useState({
-    name: "",
-    bio: "",
-    skills: [] as string[],
-    hourlyRate: "",
-    portfolioUrl: "",
-    companyName: "",
-    businessField: "",
-  });
-  const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!loading && !user) {
@@ -39,19 +49,34 @@ export default function ProfilePage() {
     }
   }, [loading, user, router]);
 
-  useEffect(() => {
-    if (profile) {
-      setForm({
-        name: profile.name ?? "",
-        bio: profile.bio ?? "",
-        skills: profile.skills ?? [],
-        hourlyRate: String(profile.hourlyRate ?? ""),
-        portfolioUrl: profile.portfolioUrl ?? "",
-        companyName: profile.companyName ?? "",
-        businessField: profile.businessField ?? "",
-      });
-    }
-  }, [profile]);
+  if (loading || !profile || !user) {
+    return <div className="flex items-center justify-center min-h-screen text-gray-400">불러오는 중...</div>;
+  }
+
+  return (
+    <ProfileEditor
+      key={profile.uid}
+      user={user}
+      profile={profile}
+      refreshProfile={refreshProfile}
+    />
+  );
+}
+
+function ProfileEditor({
+  user,
+  profile,
+  refreshProfile,
+}: {
+  user: User;
+  profile: UserProfile;
+  refreshProfile: () => Promise<void>;
+}) {
+  const [form, setForm] = useState(() => createProfileForm(profile));
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
+  const isFreelancer = profile.role === "freelancer";
 
   function toggleSkill(skill: string) {
     setForm((f) => ({
@@ -75,7 +100,7 @@ export default function ProfilePage() {
     setError("");
     setSuccess(false);
     try {
-      const token = await user!.getIdToken();
+      const token = await user.getIdToken();
       await axios.patch("/api/auth/me", {
         name: form.name.trim(),
         bio: form.bio,
@@ -94,12 +119,6 @@ export default function ProfilePage() {
       setSaving(false);
     }
   }
-
-  if (loading || !profile) {
-    return <div className="flex items-center justify-center min-h-screen text-gray-400">불러오는 중...</div>;
-  }
-
-  const isFreelancer = profile.role === "freelancer";
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">

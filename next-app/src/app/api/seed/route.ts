@@ -1,14 +1,13 @@
 import { NextRequest } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
-import { apiError, apiOk } from "@/lib/auth-middleware";
+import { apiOk } from "@/lib/auth-middleware";
+import { validateSeedAccess } from "@/lib/seedAccess";
 import { Timestamp } from "firebase-admin/firestore";
 
 // 테스트 계정 삭제
 export async function DELETE(req: NextRequest) {
-  const secret = req.headers.get("x-seed-secret");
-  if (process.env.SEED_SECRET && secret !== process.env.SEED_SECRET) {
-    return apiError("인증 실패", 401);
-  }
+  const denied = validateSeedAccess(req);
+  if (denied) return denied;
 
   const deleteIds = [
     "seed_freelancer_1",
@@ -28,13 +27,8 @@ export async function DELETE(req: NextRequest) {
 
 // 개발용 시드 데이터 — SEED_SECRET 헤더 필요
 export async function POST(req: NextRequest) {
-  if (process.env.NODE_ENV === "production" && !process.env.SEED_SECRET) {
-    return apiError("시드 데이터는 개발 환경에서만 사용 가능합니다.", 403);
-  }
-  const secret = req.headers.get("x-seed-secret");
-  if (process.env.SEED_SECRET && secret !== process.env.SEED_SECRET) {
-    return apiError("인증 실패", 401);
-  }
+  const denied = validateSeedAccess(req);
+  if (denied) return denied;
 
   const batch = adminDb.batch();
   const now = Timestamp.now();

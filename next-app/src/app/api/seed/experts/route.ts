@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
-import { apiError, apiOk } from "@/lib/auth-middleware";
+import { apiOk } from "@/lib/auth-middleware";
+import { validateSeedAccess } from "@/lib/seedAccess";
 import { Timestamp } from "firebase-admin/firestore";
 
 const EXPERTS = [
@@ -67,10 +68,8 @@ const EXPERTS = [
 ];
 
 export async function POST(req: NextRequest) {
-  const secret = req.headers.get("x-seed-secret");
-  if (process.env.SEED_SECRET && secret !== process.env.SEED_SECRET) {
-    return apiError("인증 실패", 401);
-  }
+  const denied = validateSeedAccess(req);
+  if (denied) return denied;
 
   const batch = adminDb.batch();
   const now = Timestamp.now();

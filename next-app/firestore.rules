@@ -12,10 +12,13 @@ service cloud.firestore {
       allow read: if true;
     }
 
-    // 유저 프로필: 로그인한 사용자만 (전문가 디렉터리)
-    // 비로그인 상태에서의 대량 스크래핑 방지
+    // 유저 프로필: 본인 또는 공개된 프리랜서 프로필만 읽기
     match /users/{uid} {
-      allow read: if request.auth != null;
+      allow read: if request.auth != null
+                  && (request.auth.uid == uid
+                      || (resource.data.role == "freelancer"
+                          && resource.data.profileComplete == true
+                          && resource.data.deletedAt == null));
     }
 
     // 알림: 본인(userId 필드)만 읽기
@@ -30,10 +33,11 @@ service cloud.firestore {
                   && request.auth.uid == resource.data.userId;
     }
 
-    // 지원서: 로그인한 사용자면 읽기 가능
-    // (실제 필터링은 서버 API에서 역할/소유권 확인 후 처리)
+    // 지원서: 지원자 본인 또는 프로젝트 의뢰인만 읽기
     match /applications/{id} {
-      allow read: if request.auth != null;
+      allow read: if request.auth != null
+                  && (request.auth.uid == resource.data.freelancerId
+                      || request.auth.uid == get(/databases/$(database)/documents/projects/$(resource.data.projectId)).data.clientId);
     }
 
     // 계약서: 의뢰인(clientId) 또는 프리랜서(freelancerId)만 읽기

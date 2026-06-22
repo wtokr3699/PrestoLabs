@@ -91,9 +91,10 @@ function BookmarkCard({
   project: BookmarkedProject;
   onRemove: () => void;
 }) {
+  const [now] = useState(() => Date.now());
   const deadline = (p.deadline as unknown as Timestamp)?.toDate?.();
   const daysLeft = deadline
-    ? Math.ceil((deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    ? Math.ceil((deadline.getTime() - now) / (1000 * 60 * 60 * 24))
     : null;
 
   const statusColor: Record<string, string> = {

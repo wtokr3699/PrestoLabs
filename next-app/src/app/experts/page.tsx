@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
 
@@ -28,24 +28,31 @@ export default function ExpertsPage() {
   const [sort, setSort] = useState("rating");
   const [page, setPage] = useState(1);
 
-  const fetchFreelancers = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (skill) params.set("skill", skill);
-      params.set("sort", sort);
-      params.set("page", String(page));
-      const res = await axios.get(`/api/users?${params}`);
-      setFreelancers(res.data.users);
-      setTotal(res.data.total);
-    } catch {
-      setFreelancers([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [skill, sort, page]);
+  useEffect(() => {
+    let cancelled = false;
 
-  useEffect(() => { fetchFreelancers(); }, [fetchFreelancers]);
+    async function fetchFreelancers() {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams();
+        if (skill) params.set("skill", skill);
+        params.set("sort", sort);
+        params.set("page", String(page));
+        const res = await axios.get(`/api/users?${params}`);
+        if (!cancelled) {
+          setFreelancers(res.data.users);
+          setTotal(res.data.total);
+        }
+      } catch {
+        if (!cancelled) setFreelancers([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    void fetchFreelancers();
+    return () => { cancelled = true; };
+  }, [skill, sort, page]);
 
   const totalPages = Math.ceil(total / 12);
 

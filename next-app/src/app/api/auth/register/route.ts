@@ -1,11 +1,16 @@
 import { NextRequest } from "next/server";
 import { adminAuth, adminDb } from "@/lib/firebaseAdmin";
 import { apiError, apiOk } from "@/lib/auth-middleware";
+import { isSelfAssignableRole } from "@/lib/roles";
 import { Timestamp } from "firebase-admin/firestore";
 
 export async function POST(req: NextRequest) {
   try {
     const { name, role, idToken } = await req.json();
+
+    if (role != null && !isSelfAssignableRole(role)) {
+      return apiError("유효하지 않은 역할입니다.", 400);
+    }
 
     const decoded = await adminAuth.verifyIdToken(idToken);
     const uid = decoded.uid;

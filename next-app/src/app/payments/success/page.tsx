@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function PaymentSuccessPage() {
   return <Suspense fallback={<div className="text-center py-20 text-gray-400">처리 중...</div>}><PaymentSuccessContent /></Suspense>;
@@ -11,6 +12,7 @@ export default function PaymentSuccessPage() {
 
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
+  const { user, loading: authLoading } = useAuth();
 
   // Toss가 붙여주는 파라미터
   const paymentKey = searchParams.get("paymentKey");
@@ -18,35 +20,51 @@ function PaymentSuccessContent() {
   const amount = searchParams.get("amount");
   // 우리가 successUrl에 넣은 파라미터
   const paymentId = searchParams.get("paymentId");
+  const hasTossParams = !!paymentKey && !!orderId && !!amount;
 
-  const [status, setStatus] = useState<"loading" | "done" | "error">("loading");
-  const [errorMsg, setErrorMsg] = useState("");
+  const [status, setStatus] = useState<"loading" | "done" | "error">(() =>
+    hasTossParams ? "loading" : paymentId ? "done" : "error"
+  );
+  const [errorMsg, setErrorMsg] = useState(() =>
+    hasTossParams || paymentId ? "" : "결제 정보가 없습니다."
+  );
 
   useEffect(() => {
-    if (!paymentKey || !orderId || !amount) {
-      // sandbox 경유: paymentId만 있는 경우 (이미 confirm 완료)
-      setStatus("done");
-      return;
-    }
-    confirmPayment();
-  }, []);
+    if (!hasTossParams || authLoading) return;
 
-  async function confirmPayment() {
-    try {
-      await axios.post("/api/payments/confirm", {
-        paymentKey,
-        orderId,
-        amount: Number(amount),
-      });
-      setStatus("done");
-    } catch (err: unknown) {
-      const msg = axios.isAxiosError(err)
-        ? err.response?.data?.error
-        : "결제 확인에 실패했습니다.";
-      setErrorMsg(msg ?? "결제 확인에 실패했습니다.");
-      setStatus("error");
+    let cancelled = false;
+
+    async function confirmPayment() {
+      if (!user) {
+        if (!cancelled) {
+          setErrorMsg("로그인이 필요합니다.");
+          setStatus("error");
+        }
+        return;
+      }
+
+      try {
+        const token = await user.getIdToken();
+        await axios.post("/api/payments/confirm", {
+          paymentKey,
+          orderId,
+          amount: Number(amount),
+        }, { headers: { Authorization: `Bearer ${token}` } });
+        if (!cancelled) setStatus("done");
+      } catch (err: unknown) {
+        const msg = axios.isAxiosError(err)
+          ? err.response?.data?.error
+          : "결제 확인에 실패했습니다.";
+        if (!cancelled) {
+          setErrorMsg(msg ?? "결제 확인에 실패했습니다.");
+          setStatus("error");
+        }
+      }
     }
-  }
+
+    void confirmPayment();
+    return () => { cancelled = true; };
+  }, [hasTossParams, authLoading, user, paymentKey, orderId, amount]);
 
   if (status === "loading") {
     return (

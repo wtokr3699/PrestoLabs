@@ -2,6 +2,21 @@ import { NextRequest } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { apiOk, apiError } from "@/lib/auth-middleware";
 
+type UserListItem = {
+  uid: string;
+  name?: string;
+  avatarUrl?: string | null;
+  bio?: string;
+  skills?: string[];
+  hourlyRate?: number | null;
+  portfolioUrl?: string | null;
+  avgRating?: number;
+  reviewCount?: number;
+  profileComplete?: boolean;
+  deletedAt?: unknown;
+  createdAt?: { seconds?: number };
+};
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -16,24 +31,23 @@ export async function GET(req: NextRequest) {
       .where("role", "==", "freelancer")
       .get();
 
-    let users = snapshot.docs
-      .map((d) => ({ uid: d.id, ...d.data() }))
-      .filter((u: Record<string, unknown>) => u.profileComplete === true && !u.deletedAt);
+    let users: UserListItem[] = snapshot.docs
+      .map((d) => ({ uid: d.id, ...d.data() } as UserListItem))
+      .filter((u) => u.profileComplete === true && !u.deletedAt);
 
     if (skill) {
       users = users.filter(
-        (u: Record<string, unknown>) =>
-          Array.isArray(u.skills) && (u.skills as string[]).includes(skill)
+        (u) => Array.isArray(u.skills) && u.skills.includes(skill)
       );
     }
 
     // 정렬
     if (sort === "rating") {
-      users = users.sort((a: any, b: any) => (b.avgRating ?? 0) - (a.avgRating ?? 0));
+      users = users.sort((a, b) => (b.avgRating ?? 0) - (a.avgRating ?? 0));
     } else if (sort === "reviews") {
-      users = users.sort((a: any, b: any) => (b.reviewCount ?? 0) - (a.reviewCount ?? 0));
+      users = users.sort((a, b) => (b.reviewCount ?? 0) - (a.reviewCount ?? 0));
     } else if (sort === "newest") {
-      users = users.sort((a: any, b: any) => {
+      users = users.sort((a, b) => {
         const ta = a.createdAt?.seconds ?? 0;
         const tb = b.createdAt?.seconds ?? 0;
         return tb - ta;
@@ -41,7 +55,7 @@ export async function GET(req: NextRequest) {
     }
 
     const total = users.length;
-    const items = users.slice((page - 1) * limit, page * limit).map((u: any) => ({
+    const items = users.slice((page - 1) * limit, page * limit).map((u) => ({
       uid: u.uid,
       name: u.name,
       avatarUrl: u.avatarUrl ?? null,

@@ -12,9 +12,20 @@ const SKILLS = [
   "SQL", "AWS", "Docker", "Figma", "UI/UX", "SEO", "카피라이팅", "기타",
 ];
 
+type FirestoreDateLike = {
+  toDate?: () => Date;
+  seconds?: number;
+};
+
+function timestampToDate(value: unknown): Date | null {
+  const timestamp = value as FirestoreDateLike | null | undefined;
+  if (timestamp?.toDate) return timestamp.toDate();
+  return typeof timestamp?.seconds === "number" ? new Date(timestamp.seconds * 1000) : null;
+}
+
 export default function ProjectEditPage() {
   const { id } = useParams<{ id: string }>();
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
 
   const [project, setProject] = useState<Project | null>(null);
@@ -36,45 +47,47 @@ export default function ProjectEditPage() {
 
   useEffect(() => {
     if (!id) return;
-    loadProject();
-  }, [id]);
 
-  async function loadProject() {
-    try {
-      const res = await axios.get(`/api/projects/${id}`);
-      const p: Project = res.data;
+    let cancelled = false;
+    const currentUser = user;
 
-      // 본인 소유 프로젝트인지 확인
-      if (!user || p.clientId !== user.uid) {
-        router.replace(`/projects/${id}`);
-        return;
+    async function loadProject() {
+      try {
+        const res = await axios.get(`/api/projects/${id}`);
+        const p: Project = res.data;
+
+        // 본인 소유 프로젝트인지 확인
+        if (!currentUser || p.clientId !== currentUser.uid) {
+          router.replace(`/projects/${id}`);
+          return;
+        }
+
+        const deadlineDate = timestampToDate(p.deadline);
+
+        if (!cancelled) {
+          setProject(p);
+          setForm({
+            title: p.title,
+            description: p.description,
+            category: p.category,
+            budgetMin: String(p.budgetMin ?? ""),
+            budgetMax: String(p.budgetMax ?? ""),
+            deadline: deadlineDate
+              ? deadlineDate.toISOString().split("T")[0]
+              : "",
+            requiredSkills: p.requiredSkills ?? [],
+          });
+        }
+      } catch {
+        router.replace("/my-projects");
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-
-      setProject(p);
-
-      // deadline: Firestore Timestamp → YYYY-MM-DD
-      const deadlineDate = (p.deadline as any)?.toDate?.()
-        ?? (typeof (p.deadline as any)?.seconds === "number"
-          ? new Date((p.deadline as any).seconds * 1000)
-          : null);
-
-      setForm({
-        title: p.title,
-        description: p.description,
-        category: p.category,
-        budgetMin: String(p.budgetMin ?? ""),
-        budgetMax: String(p.budgetMax ?? ""),
-        deadline: deadlineDate
-          ? deadlineDate.toISOString().split("T")[0]
-          : "",
-        requiredSkills: p.requiredSkills ?? [],
-      });
-    } catch {
-      router.replace("/my-projects");
-    } finally {
-      setLoading(false);
     }
-  }
+
+    void loadProject();
+    return () => { cancelled = true; };
+  }, [id, user, router]);
 
   function toggleSkill(skill: string) {
     setForm((f) => ({

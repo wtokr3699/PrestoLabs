@@ -22,26 +22,27 @@ export default function MyApplicationsPage() {
 
   useEffect(() => {
     if (!user) { router.push("/"); return; }
-    fetchApplications();
-  }, [user]);
 
-  async function fetchApplications() {
-    if (!user) return;
-    try {
-      const token = await user.getIdToken();
-      // 프리랜서의 모든 지원서 조회 (프로젝트별로)
-      // 실제로는 별도 API가 있어야 하지만 여기서는 프로젝트 목록에서 내 지원서를 찾음
-      // TODO: GET /api/applications/my 엔드포인트 추가
-      const res = await axios.get("/api/applications/my", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setApplications(res.data.applications);
-    } catch {
-      setApplications([]);
-    } finally {
-      setLoading(false);
+    let cancelled = false;
+    const currentUser = user;
+
+    async function fetchApplications() {
+      try {
+        const token = await currentUser.getIdToken();
+        const res = await axios.get("/api/applications/my", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!cancelled) setApplications(res.data.applications);
+      } catch {
+        if (!cancelled) setApplications([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     }
-  }
+
+    void fetchApplications();
+    return () => { cancelled = true; };
+  }, [user, router]);
 
   if (!user || profile?.role !== "freelancer") {
     return <div className="text-center py-20 text-gray-400">프리랜서 계정이 필요합니다.</div>;

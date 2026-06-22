@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { collection, getDocs, query, where } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import axios from "axios";
 import { useAuth } from "@/contexts/AuthContext";
 
 type Stats = {
@@ -27,45 +26,28 @@ export default function AdminPage() {
   useEffect(() => {
     if (authLoading) return;
     if (!user || profile?.role !== "admin") { router.push("/"); return; }
-  }, [user, profile, authLoading]);
 
-  useEffect(() => {
-    if (!user) return;
-    fetchStats();
-  }, [user]);
+    let cancelled = false;
+    const currentUser = user;
 
-  async function fetchStats() {
-    try {
-      const [usersSnap, projectsSnap, appsSnap, contractsSnap, paymentsSnap] = await Promise.all([
-        getDocs(collection(db, "users")),
-        getDocs(collection(db, "projects")),
-        getDocs(collection(db, "applications")),
-        getDocs(collection(db, "contracts")),
-        getDocs(query(collection(db, "payments"), where("status", "==", "released"))),
-      ]);
-
-      const users = usersSnap.docs.map((d) => d.data());
-      const projects = projectsSnap.docs.map((d) => d.data()).filter((p) => !p.deletedAt);
-
-      const totalRevenue = paymentsSnap.docs.reduce((sum, d) => sum + (d.data().fee ?? 0), 0);
-
-      setStats({
-        totalUsers: users.length,
-        clients: users.filter((u) => u.role === "client").length,
-        freelancers: users.filter((u) => u.role === "freelancer").length,
-        totalProjects: projects.length,
-        openProjects: projects.filter((p) => p.status === "open" || p.status === "in_review").length,
-        completedProjects: projects.filter((p) => p.status === "completed").length,
-        totalApplications: appsSnap.size,
-        totalContracts: contractsSnap.size,
-        totalRevenue,
-      });
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
+    async function loadStats() {
+      try {
+        const token = await currentUser.getIdToken();
+        const res = await axios.get<Stats>("/api/admin/stats", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!cancelled) setStats(res.data);
+      } catch (err) {
+        console.error(err);
+        if (!cancelled) setStats(null);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     }
-  }
+
+    void loadStats();
+    return () => { cancelled = true; };
+  }, [user, profile?.role, authLoading, router]);
 
   if (authLoading || loading) {
     return <div className="text-center py-20 text-gray-400">불러오는 중...</div>;
