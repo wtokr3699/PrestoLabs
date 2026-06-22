@@ -12,7 +12,7 @@ const EXPERTS = [
     skills: ["React", "Next.js", "Node.js", "TypeScript", "PostgreSQL"],
     hourlyRate: 90000,
     avgRating: 5.0,
-    reviewCount: 15,
+    reviewCount: 34,
   },
   {
     id: "expert_kim_taemin",
@@ -22,7 +22,7 @@ const EXPERTS = [
     skills: ["React Native", "Flutter", "Firebase", "iOS", "Android"],
     hourlyRate: 85000,
     avgRating: 5.0,
-    reviewCount: 15,
+    reviewCount: 21,
   },
   {
     id: "expert_kim_boram",
@@ -32,7 +32,7 @@ const EXPERTS = [
     skills: ["Figma", "UI/UX", "디자인 시스템", "프로토타이핑", "Adobe XD"],
     hourlyRate: 65000,
     avgRating: 5.0,
-    reviewCount: 15,
+    reviewCount: 47,
   },
   {
     id: "expert_kim_yoha",
@@ -42,7 +42,7 @@ const EXPERTS = [
     skills: ["Vue.js", "Nuxt.js", "TailwindCSS", "JavaScript", "SEO"],
     hourlyRate: 75000,
     avgRating: 5.0,
-    reviewCount: 15,
+    reviewCount: 18,
   },
   {
     id: "expert_lee_isaac",
@@ -52,7 +52,7 @@ const EXPERTS = [
     skills: ["Python", "Django", "FastAPI", "AWS", "Docker"],
     hourlyRate: 95000,
     avgRating: 5.0,
-    reviewCount: 15,
+    reviewCount: 29,
   },
   {
     id: "expert_park_yubin",
@@ -62,7 +62,7 @@ const EXPERTS = [
     skills: ["퍼포먼스 마케팅", "SEO", "구글 애즈", "콘텐츠 전략", "Meta 광고"],
     hourlyRate: 70000,
     avgRating: 5.0,
-    reviewCount: 15,
+    reviewCount: 12,
   },
 ];
 
@@ -99,6 +99,6 @@ export async function POST(req: NextRequest) {
 
   return apiOk({
     message: "전문가 6명이 등록됐습니다.",
-    experts: EXPERTS.map((e) => ({ id: e.id, name: e.name })),
+    experts: EXPERTS.map((e) => ({ id: e.id, name: e.name, reviewCount: e.reviewCount })),
   });
 }
