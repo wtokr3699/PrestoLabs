@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
+import { loadTossPayments, ANONYMOUS } from "@tosspayments/tosspayments-sdk";
 import { useAuth } from "@/contexts/AuthContext";
 import { Contract } from "@/types";
 import { Timestamp } from "firebase/firestore";
@@ -58,10 +59,24 @@ export default function ContractDetailPage() {
     setPayLoading(true);
     try {
       const token = await user.getIdToken();
+      // 서버에서 주문 ID + 결제 레코드 생성
       const res = await axios.post("/api/payments/initiate", { contractId: id }, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      router.push(res.data.checkoutUrl);
+
+      // Toss SDK로 결제창 호출
+      const tossPayments = await loadTossPayments(
+        process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!
+      );
+      const payment = tossPayments.payment({ customerKey: ANONYMOUS });
+      await payment.requestPayment({
+        method: "CARD",
+        amount: { value: res.data.amount, currency: "KRW" },
+        orderId: res.data.orderId,
+        orderName: "WorkBridge 에스크로 결제",
+        successUrl: `${window.location.origin}/payments/success?paymentId=${res.data.paymentId}`,
+        failUrl: `${window.location.origin}/payments/fail`,
+      });
     } catch {
       alert("결제 초기화에 실패했습니다.");
     } finally {

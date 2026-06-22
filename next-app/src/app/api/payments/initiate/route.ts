@@ -17,27 +17,11 @@ export async function POST(req: NextRequest) {
       return apiError("양측 서명이 완료되어야 결제할 수 있습니다.", 400);
     }
 
-    const orderId = `order_${Date.now()}_${contractId.slice(0, 8)}`;
+    const orderId = `wb_${Date.now()}_${contractId.slice(0, 8)}`;
     const amount = contract.agreedBudget;
 
-    // Toss sandbox 주문 생성
-    const tossRes = await fetch("https://api.tosspayments.com/v1/payments", {
-      method: "POST",
-      headers: {
-        Authorization: `Basic ${Buffer.from(process.env.TOSS_SECRET_KEY + ":").toString("base64")}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        method: "카드",
-        amount,
-        orderId,
-        orderName: `WorkBridge: ${contract.projectId}`,
-        successUrl: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/payments/success`,
-        failUrl: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/payments/fail`,
-      }),
-    });
-
-    // sandbox에서는 checkout URL 반환
+    // Firestore에 pending 결제 레코드 생성
+    // 실제 Toss 결제창 호출은 클라이언트(SDK)에서 처리
     const paymentRef = await adminDb.collection("payments").add({
       contractId,
       projectId: contract.projectId,
@@ -54,14 +38,7 @@ export async function POST(req: NextRequest) {
       createdAt: Timestamp.now(),
     });
 
-    // Toss가 에러를 반환해도 sandbox 테스트용 URL 제공
-    let checkoutUrl = `/payments/sandbox?orderId=${orderId}&amount=${amount}&paymentId=${paymentRef.id}`;
-    if (tossRes.ok) {
-      const tossData = await tossRes.json();
-      if (tossData.checkout?.url) checkoutUrl = tossData.checkout.url;
-    }
-
-    return apiOk({ paymentId: paymentRef.id, checkoutUrl, orderId, amount });
+    return apiOk({ paymentId: paymentRef.id, orderId, amount });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "결제 초기화 실패";
     return apiError(message, 400);
