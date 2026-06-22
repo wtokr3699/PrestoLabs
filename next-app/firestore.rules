@@ -2,35 +2,58 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // 공개 읽기: 프로젝트 목록/상세, 유저 공개 프로필, 리뷰
+    // 프로젝트: 비로그인도 목록/검색 가능
     match /projects/{id} {
       allow read: if true;
     }
-    match /users/{id} {
-      allow read: if true;
-    }
+
+    // 리뷰: 비로그인도 프리랜서 프로필에서 열람 가능
     match /reviews/{id} {
       allow read: if true;
     }
 
-    // 로그인한 사용자만 읽기 가능한 데이터
-    match /notifications/{id} {
-      allow read: if request.auth != null;
-    }
-    match /applications/{id} {
-      allow read: if request.auth != null;
-    }
-    match /contracts/{id} {
-      allow read: if request.auth != null;
-    }
-    match /payments/{id} {
-      allow read: if request.auth != null;
-    }
-    match /bookmarks/{id} {
+    // 유저 프로필: 로그인한 사용자만 (전문가 디렉터리)
+    // 비로그인 상태에서의 대량 스크래핑 방지
+    match /users/{uid} {
       allow read: if request.auth != null;
     }
 
-    // 모든 쓰기는 서버 Admin SDK를 통해서만 처리
-    // (클라이언트 직접 쓰기 차단)
+    // 알림: 본인(userId 필드)만 읽기
+    match /notifications/{id} {
+      allow read: if request.auth != null
+                  && request.auth.uid == resource.data.userId;
+    }
+
+    // 북마크: 본인(userId 필드)만 읽기
+    match /bookmarks/{id} {
+      allow read: if request.auth != null
+                  && request.auth.uid == resource.data.userId;
+    }
+
+    // 지원서: 로그인한 사용자면 읽기 가능
+    // (실제 필터링은 서버 API에서 역할/소유권 확인 후 처리)
+    match /applications/{id} {
+      allow read: if request.auth != null;
+    }
+
+    // 계약서: 의뢰인(clientId) 또는 프리랜서(freelancerId)만 읽기
+    match /contracts/{id} {
+      allow read: if request.auth != null
+                  && (request.auth.uid == resource.data.clientId
+                      || request.auth.uid == resource.data.freelancerId);
+    }
+
+    // 결제: 의뢰인(clientId) 또는 프리랜서(freelancerId)만 읽기
+    match /payments/{id} {
+      allow read: if request.auth != null
+                  && (request.auth.uid == resource.data.clientId
+                      || request.auth.uid == resource.data.freelancerId);
+    }
+
+    // ※ 쓰기 규칙 없음 = 전부 차단
+    // 모든 데이터 쓰기는 /api/* 라우트(Firebase Admin SDK)를 통해서만 처리.
+    // Admin SDK는 보안 규칙을 우회하므로 여기 쓰기 규칙은 불필요.
+    // 클라이언트가 직접 쓰기를 허용하면 서버 검증 로직(역할 확인,
+    // 상태 머신, 중복 방지 등)을 우회할 수 있어 오히려 위험합니다.
   }
 }
