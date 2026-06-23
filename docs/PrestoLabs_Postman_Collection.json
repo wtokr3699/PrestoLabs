@@ -1,0 +1,918 @@
+{
+  "info": {
+    "_postman_id": "c82f05fa-4c6e-4402-98be-81f19695d736",
+    "name": "PrestoLabs API Collection",
+    "description": "PrestoLabs MVP Platform API Collection (Next.js App Router API Handlers)\nContains all Auth, Users, Projects, Applications, Contracts, Payments, Bookmarks, and Notification endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. 회원 및 프로필 관련 API",
+      "item": [
+        {
+          "name": "POST /auth/register (회원 가입)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"홍길동\",\n  \"role\": \"freelancer\",\n  \"idToken\": \"{{idToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /auth/me (본인 프로필 조회)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /auth/me (본인 프로필 수정)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"홍길동 수정\",\n  \"bio\": \"노코드 챗봇 및 업무자동화 특화 제작자입니다.\",\n  \"skills\": [\n    \"FlutterFlow\",\n    \"Make\",\n    \"Firebase\"\n  ],\n  \"hourlyRate\": 40000,\n  \"portfolioUrl\": \"https://new-portfolio.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /users (프리랜서 목록 조회)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users?skill=React&sort=rating&page=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "skill",
+                  "value": "React"
+                },
+                {
+                  "key": "sort",
+                  "value": "rating"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /users/:uid (특정 유저 공개 프로필 조회)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/freelancer_uid_12",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "freelancer_uid_12"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /users/:uid/reviews (특정 유저가 받은 리뷰 목록 조회)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/freelancer_uid_12/reviews",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "freelancer_uid_12",
+                "reviews"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. 프로젝트 의뢰 관련 API",
+      "item": [
+        {
+          "name": "GET /projects (프로젝트 전체 검색 목록 조회)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects?status=open&category=automation&q=챗봇&page=1&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "projects"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "open"
+                },
+                {
+                  "key": "category",
+                  "value": "automation"
+                },
+                {
+                  "key": "q",
+                  "value": "챗봇"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /projects (프로젝트 의뢰 등록)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"업무 자동화 구글 시트 챗봇 연동 의뢰\",\n  \"description\": \"구글 시트의 주문 내역을 Slack 봇으로 전송하는 시스템 구축\",\n  \"category\": \"automation\",\n  \"requiredSkills\": [\n    \"Zapier\",\n    \"Slack API\"\n  ],\n  \"budgetMin\": 500000,\n  \"budgetMax\": 1000000,\n  \"deadline\": \"2026-06-30T00:00:00.000Z\",\n  \"startDate\": \"2026-06-25T00:00:00.000Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/projects",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "projects"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /projects/my (본인이 등록한 프로젝트 조회)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/projects/my",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "projects",
+                "my"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /projects/:id (특정 프로젝트 상세 조회)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/projects/project_id_101",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "projects",
+                "project_id_101"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /projects/:id (프로젝트 수정)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"구글 시트 및 Slack 봇 연동 시스템 구축 (수정)\",\n  \"description\": \"구글 시트 연동을 Google Apps Script로 업그레이드...\",\n  \"requiredSkills\": [\n    \"Zapier\",\n    \"Slack API\",\n    \"Google Apps Script\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/projects/project_id_101",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "projects",
+                "project_id_101"
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /projects/:id (프로젝트 소프트 삭제)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/projects/project_id_101",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "projects",
+                "project_id_101"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /projects/:id/status (프로젝트 상태 변경)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"closed\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/projects/project_id_101/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "projects",
+                "project_id_101",
+                "status"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /projects/:id/ai-analysis (AI 예상단가 분석 요청)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/projects/project_id_101/ai-analysis",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "projects",
+                "project_id_101",
+                "ai-analysis"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /projects/:id/apply-budget (AI 견적 일괄 적용)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"budgetMin\": 600000,\n  \"budgetMax\": 700000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/projects/project_id_101/apply-budget",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "projects",
+                "project_id_101",
+                "apply-budget"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. 지원서 및 계약 매칭 API",
+      "item": [
+        {
+          "name": "POST /projects/:id/applications (지원서 접수/프로젝트 지원)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coverLetter\": \"안녕하세요, 이 분야 전문 포트폴리오를 보유하고 있으며 신속히 작업하겠습니다.\",\n  \"proposedBudget\": 700000,\n  \"estimatedDays\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/projects/project_id_101/applications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "projects",
+                "project_id_101",
+                "applications"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /projects/:id/applications (프로젝트 지원서 목록 조회)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/projects/project_id_101/applications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "projects",
+                "project_id_101",
+                "applications"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /applications/my (본인 지원 목록 모아보기)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/applications/my",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "applications",
+                "my"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /applications/:id/accept (지원서 수락 및 계약서 발행)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agreedBudget\": 700000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applications/application_id_abcde/accept",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "applications",
+                "application_id_abcde",
+                "accept"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /applications/:id/reject (지원서 개별 거절)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/applications/application_id_abcde/reject",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "applications",
+                "application_id_abcde",
+                "reject"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /contracts/:id (계약서 정보 조회)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contracts/contract_id_9999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contracts",
+                "contract_id_9999"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /contracts/:id/sign (계약서 상호 전자 서명)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contracts/contract_id_9999/sign",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contracts",
+                "contract_id_9999",
+                "sign"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /contracts/:id/complete (작업물 제출 / 납품 요청)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contracts/contract_id_9999/complete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contracts",
+                "contract_id_9999",
+                "complete"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /contracts/:id/approve (납품 최종 승인 및 대금 정산)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contracts/contract_id_9999/approve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contracts",
+                "contract_id_9999",
+                "approve"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. 결제 관련 API",
+      "item": [
+        {
+          "name": "POST /payments/initiate (결제 트랜잭션 초기화)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contractId\": \"contract_id_9999\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/initiate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "initiate"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /payments/confirm (PG 결제 승인 및 에스크로 완료)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentKey\": \"toss_payment_key_xyz\",\n  \"orderId\": \"wb_1719131600_contrac\",\n  \"amount\": 700000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/confirm",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "confirm"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /payments/:id (결제 내역 상세 조회)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/payments/payment_doc_777",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "payment_doc_777"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. 보조 유틸리티 API",
+      "item": [
+        {
+          "name": "POST /bookmarks/toggle (북마크 관심 표시 토글)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"projectId\": \"project_id_101\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bookmarks/toggle",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookmarks",
+                "toggle"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /bookmarks (찜한 프로젝트 목록 조회)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bookmarks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookmarks"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /notifications (수신 알림 리스트 조회)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /notifications/:id/read (개별 알림 읽음 처리)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/noti_id_001/read",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "noti_id_001",
+                "read"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /notifications/read-all (모든 미독 알림 읽음 처리)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/read-all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "read-all"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /admin/stats (어드민 지표 통계 조회)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{idToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "stats"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /cron/deadline (마감 기한 체크 스케줄 크론)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{cronSecret}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cron/deadline",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cron",
+                "deadline"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /health (서비스 헬스 체크)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "idToken",
+      "value": "YOUR_FIREBASE_ID_TOKEN_HERE",
+      "type": "string"
+    },
+    {
+      "key": "cronSecret",
+      "value": "YOUR_CRON_SECRET_HERE",
+      "type": "string"
+    }
+  ]
+}

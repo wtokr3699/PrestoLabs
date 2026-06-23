@@ -1,0 +1,127 @@
+// dbdiagram.io DBML Definition for PrestoLabs Firestore DB
+// Paste this code into https://dbdiagram.io to view/edit the schema interactively.
+
+Table users {
+  uid string [pk, note: "Firebase Auth UID"]
+  email string [note: "사용자 이메일"]
+  name string [note: "실명 또는 닉네임"]
+  role string [note: "client | freelancer | admin"]
+  avatarUrl string [note: "프로필 이미지 URL"]
+  bio string [note: "자기소개"]
+  profileComplete boolean [note: "필수 프로필 입력 완료 여부"]
+  
+  // 프리랜서 전용 필드
+  skills "string[]" [note: "보유 기술 스택"]
+  hourlyRate number [note: "희망 시당 단가"]
+  portfolioUrl string [note: "포트폴리오 주소"]
+  avgRating number [note: "평균 평점 (1.0 ~ 5.0)"]
+  reviewCount number [note: "리뷰 개수"]
+  
+  // 의뢰인 전용 필드
+  companyName string [note: "회사명 (소속)"]
+  businessField string [note: "사업 분야"]
+  
+  createdAt timestamp
+  updatedAt timestamp
+  deletedAt timestamp [note: "소프트 딜리트 타임스탬프"]
+}
+
+Table projects {
+  id string [pk, note: "프로젝트 UUID"]
+  clientId string [ref: > users.uid, note: "등록한 의뢰인 UID"]
+  title string [note: "프로젝트 제목"]
+  description string [note: "상세 기획/내용 설명"]
+  category string [note: "landing | website | automation | mvp | admin | chatbot | design | marketing | other"]
+  requiredSkills "string[]" [note: "요구 스택"]
+  budgetMin number [note: "최소 예산"]
+  budgetMax number [note: "최대 예산"]
+  startDate timestamp [note: "희망 시작일"]
+  deadline timestamp [note: "지원 모집 마감일"]
+  status string [note: "open | in_review | matched | in_progress | submitted | completed | closed"]
+  acceptedApplicationId string [ref: > applications.id, note: "수락된 지원서 ID"]
+  contractId string [ref: - contracts.id, note: "연결된 계약서 ID"]
+  aiAnalysis object [note: "AI 분석 결과 데이터 (단위 기능 목록, 가격, 요약)"]
+  applicationCount number [note: "총 지원자 수"]
+  createdAt timestamp
+  updatedAt timestamp
+  deletedAt timestamp
+}
+
+Table applications {
+  id string [pk, note: "지원서 ID"]
+  projectId string [ref: > projects.id, note: "대상 프로젝트 ID"]
+  freelancerId string [ref: > users.uid, note: "지원한 프리랜서 UID"]
+  coverLetter string [note: "지원동기 및 상세 제안 내용"]
+  proposedBudget number [note: "제안 금액 (단가)"]
+  estimatedDays number [note: "예상 작업 일수"]
+  status string [note: "pending | accepted | rejected | auto_rejected"]
+  createdAt timestamp
+  deletedAt timestamp
+}
+
+Table contracts {
+  id string [pk, note: "계약서 ID"]
+  projectId string [ref: > projects.id, note: "대상 프로젝트 ID"]
+  clientId string [ref: > users.uid, note: "의뢰인 UID"]
+  freelancerId string [ref: > users.uid, note: "프리랜서 UID"]
+  applicationId string [ref: > applications.id, note: "기반 지원서 ID"]
+  terms string [note: "계약 조항/계약서 전문"]
+  agreedBudget number [note: "최종 합의 금액"]
+  startDate timestamp [note: "계약 시작일"]
+  endDate timestamp [note: "계약 만료일 (납품 기한)"]
+  clientSigned boolean [note: "의뢰인 서명 완료 여부"]
+  freelancerSigned boolean [note: "프리랜서 서명 완료 여부"]
+  clientSignedAt timestamp
+  freelancerSignedAt timestamp
+  status string [note: "draft | active | completed"]
+  deliveryRequestedAt timestamp [note: "프리랜서 최종 결과물 납품 일시"]
+  completedAt timestamp [note: "의뢰인 검수 완료 및 승인 일시"]
+  createdAt timestamp
+}
+
+Table payments {
+  id string [pk, note: "결제 트랜잭션 ID"]
+  contractId string [ref: > contracts.id, note: "대상 계약 ID"]
+  projectId string [ref: > projects.id, note: "대상 프로젝트 ID"]
+  clientId string [ref: > users.uid, note: "의뢰인(구매자) UID"]
+  freelancerId string [ref: > users.uid, note: "프리랜서(판매자) UID"]
+  amount number [note: "총 결제 금액"]
+  fee number [note: "플랫폼 수수료 (10%)"]
+  netAmount number [note: "프리랜서 실지급 금액 (90%)"]
+  pgOrderId string [note: "Toss Payments 주문번호"]
+  pgPaymentKey string [note: "Toss Payments 트랜잭션 키"]
+  status string [note: "pending | escrowed | released | failed | refunded"]
+  escrowedAt timestamp [note: "에스크로 예치 일시"]
+  releasedAt timestamp [note: "정산 지급 완료 일시"]
+  createdAt timestamp
+}
+
+Table reviews {
+  id string [pk, note: "리뷰 ID"]
+  projectId string [ref: > projects.id, note: "리뷰 대상 프로젝트 ID"]
+  reviewerId string [ref: > users.uid, note: "작성자 UID"]
+  revieweeId string [ref: > users.uid, note: "피평가자 UID"]
+  reviewerRole string [note: "client | freelancer"]
+  rating number [note: "평점 (1 ~ 5)"]
+  comment string [note: "리뷰 내용"]
+  tags "string[]" [note: "평가 태그 목록"]
+  createdAt timestamp
+}
+
+Table notifications {
+  id string [pk, note: "알림 ID"]
+  userId string [ref: > users.uid, note: "알림 수신 대상 UID"]
+  type string [note: "application_received | application_accepted | application_auto_rejected | application_rejected | recruitment_closed"]
+  projectId string [ref: > projects.id, note: "관련 프로젝트 ID"]
+  applicationId string [note: "관련 지원서 ID (선택)"]
+  read boolean [note: "읽음 여부"]
+  createdAt timestamp
+}
+
+Table bookmarks {
+  id string [pk, note: "북마크 ID"]
+  userId string [ref: > users.uid, note: "북마크한 사용자 UID"]
+  projectId string [ref: > projects.id, note: "북마크 대상 프로젝트 ID"]
+  createdAt timestamp
+  deletedAt timestamp
+}
