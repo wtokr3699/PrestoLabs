@@ -76,7 +76,11 @@ function ProfileEditor({
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
-  const isFreelancer = profile.role === "freelancer";
+  const [selectedRole, setSelectedRole] = useState<"client" | "freelancer">(
+    profile.role === "freelancer" ? "freelancer" : "client"
+  );
+  const effectiveRole = profile.role ?? selectedRole;
+  const isFreelancer = effectiveRole === "freelancer";
 
   function toggleSkill(skill: string) {
     setForm((f) => ({
@@ -104,6 +108,7 @@ function ProfileEditor({
       await axios.patch("/api/auth/me", {
         name: form.name.trim(),
         bio: form.bio,
+        role: profile.role ?? selectedRole,
         skills: form.skills,
         hourlyRate: form.hourlyRate ? parseInt(form.hourlyRate) : null,
         portfolioUrl: form.portfolioUrl || null,
@@ -132,7 +137,7 @@ function ProfileEditor({
           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
             isFreelancer ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"
           }`}>
-            {isFreelancer ? "프리랜서" : "의뢰인"}
+            {profile.role === null ? "역할 미설정" : isFreelancer ? "프리랜서" : "의뢰인"}
           </span>
         </div>
         {isFreelancer && (
@@ -146,6 +151,29 @@ function ProfileEditor({
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-6">
+        {/* 역할 선택 — role이 미설정된 경우에만 표시 */}
+        {profile.role === null && (
+          <div>
+            <label className="text-sm font-medium text-gray-700 block mb-2">역할 선택 *</label>
+            <div className="flex gap-3">
+              {(["client", "freelancer"] as const).map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => setSelectedRole(r)}
+                  className={`flex-1 py-3 rounded-xl border text-sm font-medium transition ${
+                    selectedRole === r
+                      ? "border-[#7c3aed] bg-purple-50 text-[#7c3aed]"
+                      : "border-gray-300 text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  {r === "client" ? "🏢 의뢰인" : "💻 프리랜서"}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* 이름 */}
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-1">이름 *</label>

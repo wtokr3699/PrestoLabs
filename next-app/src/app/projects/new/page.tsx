@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -27,7 +27,16 @@ export default function NewProjectPage() {
     requiredSkills: [] as string[],
   });
 
-  if (authLoading) {
+  useEffect(() => {
+    if (authLoading || !user) return;
+    if (profile?.role === null || profile?.role === undefined) {
+      router.push("/profile/complete?returnTo=/projects/new");
+    } else if (profile.role === "client" && !profile.profileComplete) {
+      router.push("/profile/complete?returnTo=/projects/new");
+    }
+  }, [authLoading, user, profile, router]);
+
+  if (authLoading || !user) {
     return (
       <div className="max-w-lg mx-auto px-4 py-20 text-center">
         <p className="text-gray-400 text-sm">로딩 중...</p>
@@ -35,16 +44,7 @@ export default function NewProjectPage() {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="max-w-lg mx-auto px-4 py-20 text-center">
-        <p className="text-gray-500">로그인이 필요합니다.</p>
-      </div>
-    );
-  }
-
-  if (profile?.role === null || profile?.role === undefined) {
-    router.push("/profile/complete?returnTo=/projects/new");
+  if (!profile?.role) {
     return null;
   }
 
@@ -57,7 +57,6 @@ export default function NewProjectPage() {
   }
 
   if (!profile.profileComplete) {
-    router.push("/profile/complete?returnTo=/projects/new");
     return null;
   }
 
