@@ -200,6 +200,17 @@ export default function ProjectDetailPage() {
     }
   }
 
+  async function handleAdminDelete() {
+    if (!user || !confirm("[관리자] 이 프로젝트를 삭제하시겠습니까? 복구할 수 없습니다.")) return;
+    try {
+      const token = await user.getIdToken();
+      await axios.delete(`/api/projects/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+      router.replace("/projects");
+    } catch {
+      alert("삭제에 실패했습니다.");
+    }
+  }
+
   if (loading) return <div className="text-center py-20 text-gray-400">불러오는 중...</div>;
   if (!project) return null;
 
@@ -214,6 +225,7 @@ export default function ProjectDetailPage() {
   const deadline = tsToDate(project.deadline);
   const isClient = user && profile?.role === "client" && project.clientId === user.uid;
   const isFreelancer = user && profile?.role === "freelancer";
+  const isAdmin = profile?.role === "admin";
   const canApply = isFreelancer && ["open", "in_review"].includes(project.status);
 
   const statusColors: Record<string, string> = {
@@ -496,6 +508,15 @@ export default function ProjectDetailPage() {
                 >
                   계약서 보기
                 </Link>
+              )}
+              {/* 관리자 삭제 버튼 */}
+              {isAdmin && (
+                <button
+                  onClick={handleAdminDelete}
+                  className="w-full py-2.5 rounded-xl border border-red-500 bg-red-50 text-red-600 text-sm font-semibold hover:bg-red-100 transition"
+                >
+                  [관리자] 프로젝트 삭제
+                </button>
               )}
             </div>
           </div>

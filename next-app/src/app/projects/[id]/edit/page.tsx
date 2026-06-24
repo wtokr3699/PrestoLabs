@@ -335,8 +335,8 @@ export default function ProjectEditPage() {
         )}
       </div>
 
-      {/* 삭제 영역 */}
-      {["open", "in_review"].includes(project.status) && (
+      {/* 삭제 영역 — 본인 프로젝트는 상태 무관 삭제 가능 */}
+      {!["completed"].includes(project.status) && (
         <div className="mt-6 bg-white rounded-2xl border border-red-200 p-5">
           <h3 className="text-sm font-semibold text-red-600 mb-1">위험 구역</h3>
           <p className="text-xs text-gray-500 mb-4">

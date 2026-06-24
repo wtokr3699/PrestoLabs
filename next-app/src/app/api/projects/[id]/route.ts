@@ -57,9 +57,17 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     const { uid } = await verifyAuth(req);
     const { id } = await params;
 
-    const snap = await adminDb.collection("projects").doc(id).get();
+    const [snap, userSnap] = await Promise.all([
+      adminDb.collection("projects").doc(id).get(),
+      adminDb.collection("users").doc(uid).get(),
+    ]);
+
     if (!snap.exists) return apiError("프로젝트를 찾을 수 없습니다.", 404);
-    if (snap.data()?.clientId !== uid) return apiError("삭제 권한이 없습니다.", 403);
+
+    const isOwner = snap.data()?.clientId === uid;
+    const isAdmin = userSnap.data()?.role === "admin";
+
+    if (!isOwner && !isAdmin) return apiError("삭제 권한이 없습니다.", 403);
 
     // 소프트 딜리트
     await adminDb.collection("projects").doc(id).update({
