@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useRef, ReactNode } from "react";
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -35,8 +35,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [deferredAction, setDeferredAction] = useState<(() => void) | null>(null);
 
+  // 레이스 컨디션 방지: 가장 최근 fetchProfile 호출만 state를 업데이트함
+  const profileVersion = useRef(0);
+  // 회원가입 진행 중 플래그: onAuthStateChanged가 loading=false를 설정하지 않도록 방지
+  const isSigningUp = useRef(false);
+
   const fetchProfile = useCallback(async (uid: string) => {
+    profileVersion.current += 1;
+    const myVersion = profileVersion.current;
     const snap = await getDoc(doc(db, "users", uid));
+    // 더 최신 fetchProfile 호출이 있으면 무시 (stale result 방지)
+    if (myVersion < profileVersion.current) return;
     if (snap.exists()) {
       setProfile({ uid, ...snap.data() } as UserProfile);
     } else {
@@ -56,7 +65,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         setProfile(null);
       }
-      setLoading(false);
+      // 회원가입 중에는 loading 상태를 직접 관리
+      if (!isSigningUp.current) {
+        setLoading(false);
+      }
     });
     return unsub;
   }, [fetchProfile]);
@@ -66,14 +78,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function signUpEmail(email: string, password: string, name: string, role: UserRole) {
-    const { user: newUser } = await createUserWithEmailAndPassword(auth, email, password);
-    // 서버에 유저 도큐먼트 생성
-    await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, role, idToken: await newUser.getIdToken() }),
-    });
-    await fetchProfile(newUser.uid);
+    // 플래그 설정: onAuthStateChanged가 loading=false를 건드리지 않음
+    isSigningUp.current = true;
+    try {
+      const { user: newUser } = await createUserWithEmailAndPassword(auth, email, password);
+      const idToken = await newUser.getIdToken();
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, role, idToken }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error ?? "회원 등록에 실패했습니다.");
+      }
+      // version counter 덕분에 이 fetchProfile 결과가 onAuthStateChanged의 결과보다 우선
+      await fetchProfile(newUser.uid);
+    } finally {
+      isSigningUp.current = false;
+      setLoading(false);
+    }
   }
 
   async function signInGoogle(): Promise<{ isNew: boolean; uid: string }> {
