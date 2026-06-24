@@ -1,8 +1,9 @@
 import { ProjectStatus } from "@/types";
 
 const ALLOWED_TRANSITIONS: Record<ProjectStatus, ProjectStatus[]> = {
-  open: ["in_review", "closed"],
-  in_review: ["open", "matched", "closed"],
+  open: ["in_review", "selecting", "closed"],
+  in_review: ["open", "selecting", "matched", "closed"],
+  selecting: ["matched", "closed"],
   matched: ["in_progress", "closed"],
   in_progress: ["submitted", "closed"],
   submitted: ["completed", "in_progress"],

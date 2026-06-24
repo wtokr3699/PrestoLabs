@@ -27,6 +27,7 @@ export interface UserProfile {
 export type ProjectStatus =
   | "open"
   | "in_review"
+  | "selecting"
   | "matched"
   | "in_progress"
   | "submitted"
@@ -36,6 +37,7 @@ export type ProjectStatus =
 export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
   open: "모집 중",
   in_review: "검토 중",
+  selecting: "전문가 선택 중",
   matched: "매칭 완료",
   in_progress: "진행 중",
   submitted: "검수 대기",
@@ -162,7 +164,8 @@ export type NotificationType =
   | "application_accepted"
   | "application_auto_rejected"
   | "application_rejected"
-  | "recruitment_closed";
+  | "recruitment_closed"
+  | "selection_reminder";
 
 export interface Notification {
   id: string;
@@ -170,6 +173,7 @@ export interface Notification {
   type: NotificationType;
   projectId: string;
   applicationId?: string;
+  actorName?: string;
   read: boolean;
   createdAt: Timestamp;
 }
@@ -183,9 +187,10 @@ export interface Bookmark {
 }
 
 export const NOTIFICATION_MESSAGES: Record<NotificationType, string> = {
-  application_received: "님이 프로젝트에 지원했습니다.",
+  application_received: "이(가) 프로젝트에 지원했습니다.",
   application_accepted: "프로젝트 지원이 수락됐습니다.",
   application_auto_rejected: "해당 프로젝트에 다른 지원자가 선정됐습니다.",
   application_rejected: "프로젝트 지원이 거절됐습니다.",
   recruitment_closed: "프로젝트 모집이 마감됐습니다.",
+  selection_reminder: "마감이 지났습니다. 14일 내에 전문가를 선택해주세요.",
 };

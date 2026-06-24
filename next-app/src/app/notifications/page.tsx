@@ -81,7 +81,7 @@ export default function NotificationsPage() {
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1">
                   <span className={`text-sm ${!n.read ? "font-medium text-gray-900" : "text-gray-600"}`}>
-                    {NOTIFICATION_MESSAGES[n.type]}
+                    {n.actorName ? `${n.actorName}` : ""}{NOTIFICATION_MESSAGES[n.type]}
                   </span>
                   <p className="text-xs text-gray-400 mt-1">
                     {(n.createdAt as unknown as { toDate?: () => Date })?.toDate?.()?.toLocaleDateString("ko-KR", {

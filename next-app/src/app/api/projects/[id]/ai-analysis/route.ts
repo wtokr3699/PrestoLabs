@@ -42,9 +42,13 @@ async function triggerAiAnalysis(projectId: string, description: string, categor
   `.trim();
 
   try {
+    if (!process.env.LLM_API_KEY) {
+      throw new Error("AI 분석 서비스가 준비 중입니다. 잠시 후 다시 시도해주세요.");
+    }
+
     let aiResponse: string | null = null;
 
-    if (process.env.LLM_PROVIDER === "anthropic" && process.env.LLM_API_KEY) {
+    if (process.env.LLM_PROVIDER === "anthropic") {
       const res = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: {
@@ -58,9 +62,13 @@ async function triggerAiAnalysis(projectId: string, description: string, categor
           messages: [{ role: "user", content: prompt }],
         }),
       });
+      if (!res.ok) {
+        const errBody = await res.text();
+        throw new Error(`Anthropic API 오류 (${res.status}): ${errBody}`);
+      }
       const data = await res.json();
       aiResponse = data.content?.[0]?.text ?? null;
-    } else if (process.env.LLM_PROVIDER === "openai" && process.env.LLM_API_KEY) {
+    } else if (process.env.LLM_PROVIDER === "openai") {
       const res = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -73,6 +81,10 @@ async function triggerAiAnalysis(projectId: string, description: string, categor
           response_format: { type: "json_object" },
         }),
       });
+      if (!res.ok) {
+        const errBody = await res.text();
+        throw new Error(`OpenAI API 오류 (${res.status}): ${errBody}`);
+      }
       const data = await res.json();
       aiResponse = data.choices?.[0]?.message?.content ?? null;
     }

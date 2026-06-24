@@ -9,7 +9,7 @@ import { ProjectCategory, PROJECT_CATEGORY_LABELS } from "@/types";
 const SKILLS = ["React", "Next.js", "Vue", "Angular", "Node.js", "Python", "Java", "SQL", "AWS", "Docker", "Figma", "UI/UX", "SEO", "카피라이팅", "기타"];
 
 export default function NewProjectPage() {
-  const { user, profile } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const router = useRouter();
 
   const [step, setStep] = useState(1);
@@ -27,7 +27,28 @@ export default function NewProjectPage() {
     requiredSkills: [] as string[],
   });
 
-  if (!user || profile?.role !== "client") {
+  if (authLoading) {
+    return (
+      <div className="max-w-lg mx-auto px-4 py-20 text-center">
+        <p className="text-gray-400 text-sm">로딩 중...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="max-w-lg mx-auto px-4 py-20 text-center">
+        <p className="text-gray-500">로그인이 필요합니다.</p>
+      </div>
+    );
+  }
+
+  if (profile?.role === null || profile?.role === undefined) {
+    router.push("/profile/complete?returnTo=/projects/new");
+    return null;
+  }
+
+  if (profile.role !== "client") {
     return (
       <div className="max-w-lg mx-auto px-4 py-20 text-center">
         <p className="text-gray-500">의뢰인 계정으로 로그인해야 합니다.</p>

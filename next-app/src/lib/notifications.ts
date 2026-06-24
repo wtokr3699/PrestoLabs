@@ -7,6 +7,7 @@ interface NotificationPayload {
   type: NotificationType;
   projectId: string;
   applicationId?: string;
+  actorName?: string;
 }
 
 export function buildNotificationDoc(payload: NotificationPayload) {
@@ -15,6 +16,7 @@ export function buildNotificationDoc(payload: NotificationPayload) {
     type: payload.type,
     projectId: payload.projectId,
     applicationId: payload.applicationId ?? null,
+    actorName: payload.actorName ?? null,
     read: false,
     createdAt: Timestamp.now(),
   };

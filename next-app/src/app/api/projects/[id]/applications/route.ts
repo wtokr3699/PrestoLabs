@@ -105,6 +105,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       type: "application_received",
       projectId: id,
       applicationId: appRef.id,
+      actorName: userData.name ?? undefined,
     });
 
     await batch.commit();
