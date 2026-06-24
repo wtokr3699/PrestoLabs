@@ -17,8 +17,14 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  let uid: string;
   try {
-    const { uid } = await verifyAuth(req);
+    ({ uid } = await verifyAuth(req));
+  } catch {
+    return apiError("인증이 필요합니다.", 401);
+  }
+
+  try {
     const body = await req.json();
 
     const allowed = [
@@ -48,10 +54,12 @@ export async function PATCH(req: NextRequest) {
       updates.profileComplete = !!(merged.bio);
     }
 
-    await adminDb.collection("users").doc(uid).update(updates);
+    // set with merge handles both existing and missing documents
+    await adminDb.collection("users").doc(uid).set(updates, { merge: true });
     return apiOk({ success: true });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "업데이트 실패";
-    return apiError(message, 400);
+    console.error("[PATCH /api/auth/me]", message);
+    return apiError(message, 500);
   }
 }

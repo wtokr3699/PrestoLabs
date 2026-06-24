@@ -88,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { isNew: false, uid: u.uid };
     } else {
       // 신규 소셜 로그인 → 역할 선택 필요
-      await fetch("/api/auth/register", {
+      const registerRes = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -97,6 +97,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           idToken,
         }),
       });
+      if (!registerRes.ok) {
+        const err = await registerRes.json().catch(() => ({}));
+        throw new Error(err.error ?? "회원 등록에 실패했습니다.");
+      }
       await fetchProfile(u.uid);
       return { isNew: true, uid: u.uid };
     }
