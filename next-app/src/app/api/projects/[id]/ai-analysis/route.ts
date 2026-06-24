@@ -136,6 +136,26 @@ function buildFallbackAnalysis(category: string, description: string) {
   return { features, totalEstimate, report: template.report };
 }
 
+// 분석 결과 저장 — 예산이 0이면 totalEstimate 기반으로 자동 채움
+async function saveAnalysis(
+  projectId: string,
+  analysis: { features: { name: string; estimatedPrice: number }[]; totalEstimate: number; report: string },
+  currentProject: FirebaseFirestore.DocumentData
+) {
+  const updates: Record<string, unknown> = {
+    aiAnalysis: { ...analysis, analyzedAt: Timestamp.now() },
+    updatedAt: Timestamp.now(),
+  };
+
+  if ((currentProject.budgetMin ?? 0) === 0 && (currentProject.budgetMax ?? 0) === 0 && analysis.totalEstimate > 0) {
+    const base = analysis.totalEstimate;
+    updates.budgetMin = Math.round(base * 0.8 / 10000) * 10000;
+    updates.budgetMax = Math.round(base * 1.2 / 10000) * 10000;
+  }
+
+  await adminDb.collection("projects").doc(projectId).update(updates);
+}
+
 async function triggerAiAnalysis(projectId: string, description: string, category: string) {
   const prompt = `
 당신은 IT 프리랜서 플랫폼의 단가 분석 전문가입니다.
@@ -154,17 +174,14 @@ async function triggerAiAnalysis(projectId: string, description: string, categor
 }
   `.trim();
 
+  const projectSnap = await adminDb.collection("projects").doc(projectId).get();
+  const currentProject = projectSnap.data() ?? {};
+
   try {
     // API 키 없으면 카테고리 기반 현실적 폴백 분석 사용
     if (!process.env.LLM_API_KEY) {
       const fallback = buildFallbackAnalysis(category, description);
-      await adminDb.collection("projects").doc(projectId).update({
-        aiAnalysis: {
-          ...fallback,
-          analyzedAt: Timestamp.now(),
-        },
-        updatedAt: Timestamp.now(),
-      });
+      await saveAnalysis(projectId, fallback, currentProject);
       return;
     }
 
@@ -214,28 +231,20 @@ async function triggerAiAnalysis(projectId: string, description: string, categor
     if (!aiResponse) throw new Error("AI 응답 없음");
 
     const parsed = JSON.parse(aiResponse);
-
-    await adminDb.collection("projects").doc(projectId).update({
-      aiAnalysis: {
+    await saveAnalysis(
+      projectId,
+      {
         features: parsed.features ?? [],
         totalEstimate: parsed.totalEstimate ?? 0,
         report: parsed.report ?? "",
-        analyzedAt: Timestamp.now(),
       },
-      updatedAt: Timestamp.now(),
-    });
+      currentProject
+    );
   } catch (err) {
     console.error("AI 분석 실패:", err);
-    // LLM 실패 시에도 폴백 분석으로 대체
     try {
       const fallback = buildFallbackAnalysis(category, description);
-      await adminDb.collection("projects").doc(projectId).update({
-        aiAnalysis: {
-          ...fallback,
-          analyzedAt: Timestamp.now(),
-        },
-        updatedAt: Timestamp.now(),
-      });
+      await saveAnalysis(projectId, fallback, currentProject);
     } catch (fallbackErr) {
       console.error("폴백 분석도 실패:", fallbackErr);
       await adminDb.collection("projects").doc(projectId).update({
