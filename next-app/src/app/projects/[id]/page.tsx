@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { useAuth } from "@/contexts/AuthContext";
 import { Project, Application, PROJECT_STATUS_LABELS, PROJECT_CATEGORY_LABELS } from "@/types";
-import { Timestamp, collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import Link from "next/link";
 
@@ -203,7 +203,15 @@ export default function ProjectDetailPage() {
   if (loading) return <div className="text-center py-20 text-gray-400">불러오는 중...</div>;
   if (!project) return null;
 
-  const deadline = (project.deadline as unknown as Timestamp)?.toDate?.();
+  function tsToDate(value: unknown): Date | null {
+    if (!value || typeof value !== "object") return null;
+    const t = value as Record<string, unknown>;
+    if (typeof t.toDate === "function") return (t.toDate as () => Date)();
+    const secs = typeof t.seconds === "number" ? t.seconds
+      : typeof t._seconds === "number" ? (t._seconds as number) : null;
+    return secs !== null ? new Date(secs * 1000) : null;
+  }
+  const deadline = tsToDate(project.deadline);
   const isClient = user && profile?.role === "client" && project.clientId === user.uid;
   const isFreelancer = user && profile?.role === "freelancer";
   const canApply = isFreelancer && ["open", "in_review"].includes(project.status);

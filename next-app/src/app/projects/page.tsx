@@ -5,7 +5,20 @@ import { useSearchParams } from "next/navigation";
 import axios from "axios";
 import Link from "next/link";
 import { Project, ProjectCategory, ProjectStatus, PROJECT_CATEGORY_LABELS, PROJECT_STATUS_LABELS } from "@/types";
-import { Timestamp } from "firebase/firestore";
+// Admin SDK는 _seconds, Client SDK는 seconds — 양쪽 모두 처리
+function tsToDate(value: unknown): Date | null {
+  if (!value || typeof value !== "object") return null;
+  const t = value as Record<string, unknown>;
+  if (typeof t.toDate === "function") return (t.toDate as () => Date)();
+  const secs = typeof t.seconds === "number" ? t.seconds
+    : typeof t._seconds === "number" ? (t._seconds as number)
+    : null;
+  return secs !== null ? new Date(secs * 1000) : null;
+}
+function tsToSecs(value: unknown): number | null {
+  const d = tsToDate(value);
+  return d ? Math.floor(d.getTime() / 1000) : null;
+}
 
 const CATEGORIES: { value: ProjectCategory | ""; label: string }[] = [
   { value: "", label: "전체" },
@@ -64,8 +77,8 @@ function ProjectsContent() {
         // 정렬 클라이언트 사이드
         if (sort === "deadline") {
           items = [...items].sort((a, b) => {
-            const ta = (a.deadline as unknown as Timestamp)?.seconds ?? 0;
-            const tb = (b.deadline as unknown as Timestamp)?.seconds ?? 0;
+            const ta = tsToSecs(a.deadline) ?? 0;
+            const tb = tsToSecs(b.deadline) ?? 0;
             return ta - tb;
           });
         } else if (sort === "budget") {
@@ -196,7 +209,7 @@ function ProjectsContent() {
 
 function ProjectCard({ project }: { project: Project }) {
   const [now] = useState(() => Date.now());
-  const deadline = (project.deadline as unknown as Timestamp)?.toDate?.();
+  const deadline = tsToDate(project.deadline);
   const daysLeft = deadline
     ? Math.ceil((deadline.getTime() - now) / (1000 * 60 * 60 * 24))
     : null;

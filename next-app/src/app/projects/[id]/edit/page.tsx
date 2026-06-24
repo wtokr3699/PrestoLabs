@@ -12,15 +12,15 @@ const SKILLS = [
   "SQL", "AWS", "Docker", "Figma", "UI/UX", "SEO", "카피라이팅", "기타",
 ];
 
-type FirestoreDateLike = {
-  toDate?: () => Date;
-  seconds?: number;
-};
-
 function timestampToDate(value: unknown): Date | null {
-  const timestamp = value as FirestoreDateLike | null | undefined;
-  if (timestamp?.toDate) return timestamp.toDate();
-  return typeof timestamp?.seconds === "number" ? new Date(timestamp.seconds * 1000) : null;
+  if (!value || typeof value !== "object") return null;
+  const t = value as Record<string, unknown>;
+  if (typeof t.toDate === "function") return (t.toDate as () => Date)();
+  // Admin SDK는 _seconds, Client SDK는 seconds로 직렬화
+  const secs = typeof t.seconds === "number" ? t.seconds
+    : typeof t._seconds === "number" ? (t._seconds as number)
+    : null;
+  return secs !== null ? new Date(secs * 1000) : null;
 }
 
 export default function ProjectEditPage() {

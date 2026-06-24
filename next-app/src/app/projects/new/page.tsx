@@ -123,7 +123,15 @@ export default function NewProjectPage() {
         budgetMax: parseInt(form.budgetMax || "0"),
       }, { headers: { Authorization: `Bearer ${token}` } });
 
-      router.push(`/projects/${res.data.id}`);
+      const projectId = res.data.id;
+
+      // 프로젝트 생성 직후 AI 단가 분석 자동 시작 (비동기 — 결과 기다리지 않음)
+      fetch(`/api/projects/${projectId}/ai-analysis`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      }).catch(console.error);
+
+      router.push(`/projects/${projectId}`);
     } catch (err: unknown) {
       const msg = axios.isAxiosError(err) ? err.response?.data?.error : "등록에 실패했습니다.";
       setError(msg);
