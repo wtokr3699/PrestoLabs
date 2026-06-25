@@ -18,7 +18,11 @@ export async function POST(req: NextRequest) {
       return apiError("양측 서명이 완료되어야 결제할 수 있습니다.", 400);
     }
 
-    const amount = contract.agreedBudget;
+    const amount = Number(contract.agreedBudget);
+    if (!Number.isInteger(amount) || amount <= 0) {
+      return apiError("계약 금액이 올바르지 않습니다.", 400);
+    }
+
     const existingPayments = await adminDb
       .collection("payments")
       .where("contractId", "==", contractId)

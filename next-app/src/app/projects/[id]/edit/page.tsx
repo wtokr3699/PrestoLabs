@@ -340,7 +340,7 @@ export default function ProjectEditPage() {
         <div className="mt-6 bg-white rounded-2xl border border-red-200 p-5">
           <h3 className="text-sm font-semibold text-red-600 mb-1">위험 구역</h3>
           <p className="text-xs text-gray-500 mb-4">
-            프로젝트를 삭제하면 복구할 수 없습니다. 지원자가 있는 경우 모든 지원서가 함께 삭제됩니다.
+            프로젝트를 삭제하면 복구할 수 없으며, 목록과 검색에서 제거됩니다. 기존 지원자에게는 더 이상 노출되지 않습니다.
           </p>
           <button
             onClick={handleDelete}

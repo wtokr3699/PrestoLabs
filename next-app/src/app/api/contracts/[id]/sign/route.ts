@@ -16,6 +16,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const isFreelancer = contract.freelancerId === uid;
     if (!isClient && !isFreelancer) return apiError("권한이 없습니다.", 403);
 
+    // 서명은 draft 상태에서만 가능 (active/completed 계약의 상태 회귀 방지)
+    if (contract.status !== "draft") {
+      return apiError("이미 진행 중이거나 완료된 계약입니다.", 400);
+    }
+    // 이미 서명한 측의 중복 서명 방지
+    if (isClient && contract.clientSigned) return apiError("이미 서명을 완료했습니다.", 400);
+    if (isFreelancer && contract.freelancerSigned) return apiError("이미 서명을 완료했습니다.", 400);
+
     const now = Timestamp.now();
     const updates: Record<string, unknown> = {};
 

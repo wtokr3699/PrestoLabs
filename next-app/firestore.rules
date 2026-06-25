@@ -18,7 +18,7 @@ service cloud.firestore {
                   && (request.auth.uid == uid
                       || (resource.data.role == "freelancer"
                           && resource.data.profileComplete == true
-                          && resource.data.deletedAt == null));
+                          && resource.data.get('deletedAt', null) == null));
     }
 
     // 알림: 본인(userId 필드)만 읽기

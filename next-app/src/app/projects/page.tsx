@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import axios from "axios";
 import Link from "next/link";
 import { Project, ProjectCategory, ProjectStatus, PROJECT_CATEGORY_LABELS, PROJECT_STATUS_LABELS } from "@/types";
+import { formatBudget } from "@/lib/format";
 // Admin SDK는 _seconds, Client SDK는 seconds — 양쪽 모두 처리
 function tsToDate(value: unknown): Date | null {
   if (!value || typeof value !== "object") return null;
@@ -253,7 +254,7 @@ function ProjectCard({ project }: { project: Project }) {
         </div>
         <div className="text-right shrink-0">
           <p className="font-semibold text-gray-900 text-sm">
-            {project.budgetMin?.toLocaleString()}~{project.budgetMax?.toLocaleString()}원
+            {formatBudget(project.budgetMin, project.budgetMax)}
           </p>
           {daysLeft !== null && (
             <p className={`text-xs mt-1 ${daysLeft <= 3 ? "text-red-500" : "text-gray-400"}`}>

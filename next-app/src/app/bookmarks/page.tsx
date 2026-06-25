@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import Link from "next/link";
 import { Project, PROJECT_STATUS_LABELS, PROJECT_CATEGORY_LABELS } from "@/types";
+import { formatBudget } from "@/lib/format";
 import { Timestamp } from "firebase/firestore";
 
 interface BookmarkedProject extends Project {
@@ -119,7 +120,7 @@ function BookmarkCard({
         <h3 className="font-semibold text-gray-900 truncate">{p.title}</h3>
         <p className="text-sm text-gray-500 mt-1 line-clamp-1">{p.description}</p>
         <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
-          <span>{p.budgetMin?.toLocaleString()}~{p.budgetMax?.toLocaleString()}원</span>
+          <span>{formatBudget(p.budgetMin, p.budgetMax)}</span>
           {daysLeft !== null && (
             <span className={daysLeft <= 3 ? "text-red-500" : ""}>
               {daysLeft > 0 ? `D-${daysLeft}` : "마감됨"}

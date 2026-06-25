@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
       }),
     };
 
-    const applications = await Promise.all(
+    const applicationsRaw = await Promise.all(
       snap.docs.map(async (d) => {
         const app = { id: d.id, ...d.data() };
         // 프로젝트 제목 조회
@@ -27,16 +27,20 @@ export async function GET(req: NextRequest) {
           const projectId = (app as Record<string, unknown>).projectId as string;
           const pSnap = await adminDb.collection("projects").doc(projectId).get();
           const projectData = pSnap.data();
+          // 삭제된(soft delete) 프로젝트의 지원서는 노출하지 않음
+          if (!projectData || projectData.deletedAt) return null;
           return {
             ...app,
-            projectTitle: projectData?.title ?? null,
-            contractId: projectData?.contractId ?? null,
+            projectTitle: projectData.title ?? null,
+            contractId: projectData.contractId ?? null,
           };
         } catch {
           return app;
         }
       })
     );
+
+    const applications = applicationsRaw.filter(Boolean);
 
     return apiOk({ applications });
   } catch (err: unknown) {

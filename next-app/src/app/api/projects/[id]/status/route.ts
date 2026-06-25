@@ -17,6 +17,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const project = snap.data()!;
     if (project.clientId !== uid) return apiError("권한이 없습니다.", 403);
 
+    // 의뢰인이 직접 변경할 수 있는 상태는 모집 관련 단계로만 제한.
+    // matched/in_progress/submitted/completed 는 수락·결제·승인 등 전용 플로우로만 도달.
+    const MANUAL_ALLOWED: ProjectStatus[] = ["open", "in_review", "selecting", "closed"];
+    if (!MANUAL_ALLOWED.includes(newStatus)) {
+      return apiError("이 상태로는 직접 변경할 수 없습니다.", 403);
+    }
+
     // 상태 전환 유효성 검증
     assertTransition(project.status as ProjectStatus, newStatus);
 

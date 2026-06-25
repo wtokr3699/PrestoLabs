@@ -90,6 +90,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
+        // 등록 실패 시 고아 Auth 계정 정리 (프로필 없이 로그인만 되는 반쪽 상태 방지)
+        await newUser.delete().catch(() => {});
         throw new Error(err.error ?? "회원 등록에 실패했습니다.");
       }
       // version counter 덕분에 이 fetchProfile 결과가 onAuthStateChanged의 결과보다 우선
@@ -123,6 +125,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       if (!registerRes.ok) {
         const err = await registerRes.json().catch(() => ({}));
+        // 등록 실패 시 고아 Auth 계정 정리
+        await u.delete().catch(() => {});
         throw new Error(err.error ?? "회원 등록에 실패했습니다.");
       }
       await fetchProfile(u.uid);

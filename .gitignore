@@ -16,6 +16,10 @@ prestolabs-poster-*.png
 # Firebase credentials — never commit
 firebase-config.js
 
+# Firebase CLI debug output
+firebase-debug.log
+*firebase-debug*.log
+
 # Editor
 .vscode/
 .idea/

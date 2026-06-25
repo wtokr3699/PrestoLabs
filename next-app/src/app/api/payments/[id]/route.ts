@@ -15,7 +15,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       return apiError("조회 권한이 없습니다.", 403);
     }
 
-    return apiOk({ id: snap.id, ...payment });
+    // PG 결제키 등 민감 내부 필드는 응답에서 제거
+    const safe = { ...payment };
+    delete safe.pgPaymentKey;
+
+    return apiOk({ id: snap.id, ...safe });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "조회 실패";
     return apiError(message, 500);

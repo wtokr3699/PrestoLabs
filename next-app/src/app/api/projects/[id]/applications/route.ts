@@ -1,8 +1,8 @@
 import { NextRequest } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { verifyAuth, apiError, apiOk } from "@/lib/auth-middleware";
-import { Timestamp } from "firebase-admin/firestore";
-import { addNotificationToBatch } from "@/lib/notifications";
+import { Timestamp, FieldValue } from "firebase-admin/firestore";
+import { buildNotificationDoc } from "@/lib/notifications";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -52,66 +52,75 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (userData.role !== "freelancer") return apiError("프리랜서만 지원할 수 있습니다.", 403);
     if (!userData.profileComplete) return apiError("프로필을 먼저 완성해주세요.", 403);
 
-    // 프로젝트 확인
-    const projectSnap = await adminDb.collection("projects").doc(id).get();
-    if (!projectSnap.exists) return apiError("프로젝트를 찾을 수 없습니다.", 404);
-    const project = projectSnap.data()!;
-
-    if (!["open", "in_review"].includes(project.status)) {
-      return apiError("현재 지원을 받지 않는 프로젝트입니다.", 400);
-    }
-
-    // 중복 지원 방지 (단일 where로 단순화)
-    const existingSnap = await adminDb
-      .collection("applications")
-      .where("projectId", "==", id)
-      .get();
-    const alreadyApplied = existingSnap.docs.some((d) => d.data().freelancerId === uid);
-    if (alreadyApplied) return apiError("이미 지원한 프로젝트입니다.", 409);
-
     const body = await req.json();
     const { coverLetter, proposedBudget, estimatedDays } = body;
-
     if (!coverLetter || !proposedBudget || !estimatedDays) {
       return apiError("지원서 내용을 모두 입력해주세요.", 400);
     }
 
-    const batch = adminDb.batch();
+    const projectRef = adminDb.collection("projects").doc(id);
+    // 결정적 문서 ID(projectId_uid)로 중복 지원을 원천 차단
+    const appRef = adminDb.collection("applications").doc(`${id}_${uid}`);
     const now = Timestamp.now();
 
-    // 지원서 생성
-    const appRef = adminDb.collection("applications").doc();
-    batch.set(appRef, {
-      projectId: id,
-      freelancerId: uid,
-      coverLetter,
-      proposedBudget,
-      estimatedDays,
-      status: "pending",
-      createdAt: now,
-      deletedAt: null,
+    // 상태 확인 + 중복 확인 + 카운터 증가를 트랜잭션으로 원자 처리
+    await adminDb.runTransaction(async (tx) => {
+      const [projectSnap, existingApp] = await Promise.all([
+        tx.get(projectRef),
+        tx.get(appRef),
+      ]);
+
+      if (!projectSnap.exists) throw new Error("프로젝트를 찾을 수 없습니다.");
+      const project = projectSnap.data()!;
+
+      // 본인이 등록한 프로젝트에는 지원할 수 없음 (자기거래 방지)
+      if (project.clientId === uid) {
+        throw new Error("본인이 등록한 프로젝트에는 지원할 수 없습니다.");
+      }
+      if (!["open", "in_review"].includes(project.status)) {
+        throw new Error("현재 지원을 받지 않는 프로젝트입니다.");
+      }
+      if (existingApp.exists) {
+        throw new Error("이미 지원한 프로젝트입니다.");
+      }
+
+      tx.set(appRef, {
+        projectId: id,
+        freelancerId: uid,
+        coverLetter,
+        proposedBudget,
+        estimatedDays,
+        status: "pending",
+        createdAt: now,
+        deletedAt: null,
+      });
+
+      tx.update(projectRef, {
+        applicationCount: FieldValue.increment(1),
+        status: project.status === "open" ? "in_review" : project.status,
+        updatedAt: now,
+      });
+
+      // 의뢰인에게 알림 (Trigger 1)
+      tx.set(
+        adminDb.collection("notifications").doc(),
+        buildNotificationDoc({
+          userId: project.clientId,
+          type: "application_received",
+          projectId: id,
+          applicationId: appRef.id,
+          actorName: userData.name ?? undefined,
+        })
+      );
     });
 
-    // 지원자 수 카운터 증가
-    batch.update(adminDb.collection("projects").doc(id), {
-      applicationCount: (project.applicationCount ?? 0) + 1,
-      status: project.status === "open" ? "in_review" : project.status,
-      updatedAt: now,
-    });
-
-    // 의뢰인에게 알림 (Trigger 1)
-    addNotificationToBatch(batch, {
-      userId: project.clientId,
-      type: "application_received",
-      projectId: id,
-      applicationId: appRef.id,
-      actorName: userData.name ?? undefined,
-    });
-
-    await batch.commit();
     return apiOk({ id: appRef.id }, 201);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "지원 실패";
-    return apiError(message, 400);
+    const status = message.includes("본인") ? 403
+      : message.includes("이미") ? 409
+      : message.includes("받지 않는") ? 400
+      : 400;
+    return apiError(message, status);
   }
 }

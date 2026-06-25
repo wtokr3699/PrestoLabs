@@ -10,8 +10,13 @@ const SELECTION_GRACE_DAYS = 14;
 // 또는 외부에서 Authorization 헤더로 호출
 export async function GET(req: NextRequest) {
   try {
+    const cronSecret = process.env.CRON_SECRET;
+    // 시크릿 미설정 시 fail-closed (미설정이면 "Bearer undefined" 로 통과되던 문제 차단)
+    if (!cronSecret) {
+      return apiError("크론 시크릿이 설정되지 않았습니다.", 500);
+    }
     const authHeader = req.headers.get("authorization");
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    if (authHeader !== `Bearer ${cronSecret}`) {
       return apiError("Unauthorized", 401);
     }
 

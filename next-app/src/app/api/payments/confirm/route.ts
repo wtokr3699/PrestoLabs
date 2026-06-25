@@ -50,8 +50,13 @@ export async function POST(req: NextRequest) {
 
     const isSandboxPayment = String(paymentKey).startsWith("sandbox_pk_");
 
-    if (isSandboxPayment && process.env.NODE_ENV === "production") {
-      return apiError("Sandbox 결제는 운영 환경에서 사용할 수 없습니다.", 403);
+    // 샌드박스 결제는 명시적 opt-in 플래그가 있고 운영 환경이 아닐 때만 허용.
+    // (NODE_ENV 만으로 판단하면 오설정 환경에서 무료 에스크로가 가능)
+    const sandboxAllowed =
+      process.env.ALLOW_SANDBOX_PAYMENTS === "true" &&
+      process.env.NODE_ENV !== "production";
+    if (isSandboxPayment && !sandboxAllowed) {
+      return apiError("Sandbox 결제는 허용되지 않은 환경입니다.", 403);
     }
 
     if (!isSandboxPayment) {

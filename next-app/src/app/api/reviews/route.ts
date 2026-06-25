@@ -8,10 +8,13 @@ export async function POST(req: NextRequest) {
     const { uid } = await verifyAuth(req);
     const { projectId, rating, comment, tags } = await req.json();
 
-    if (!projectId || !rating || !comment) {
+    if (!projectId || !comment) {
       return apiError("필수 항목을 모두 입력해주세요.", 400);
     }
-    if (rating < 1 || rating > 5) return apiError("별점은 1-5 사이여야 합니다.", 400);
+    const ratingNum = Number(rating);
+    if (!Number.isInteger(ratingNum) || ratingNum < 1 || ratingNum > 5) {
+      return apiError("별점은 1~5 사이의 정수여야 합니다.", 400);
+    }
 
     // 프로젝트 완료 상태 확인
     const projectSnap = await adminDb.collection("projects").doc(projectId).get();
@@ -38,6 +41,11 @@ export async function POST(req: NextRequest) {
 
     const revieweeId = isClient ? contract.freelancerId : contract.clientId;
 
+    // 자기 자신에게는 리뷰 작성 불가 (자기리뷰로 평점 조작 방지)
+    if (revieweeId === uid) {
+      return apiError("본인에게는 리뷰를 작성할 수 없습니다.", 403);
+    }
+
     // 중복 리뷰 방지
     const reviewsByProject = await adminDb
       .collection("reviews")
@@ -54,7 +62,7 @@ export async function POST(req: NextRequest) {
       reviewerId: uid,
       revieweeId,
       reviewerRole: role,
-      rating,
+      rating: ratingNum,
       comment,
       tags: tags ?? [],
       createdAt: now,
@@ -68,7 +76,7 @@ export async function POST(req: NextRequest) {
       const currentCount = userData.reviewCount ?? 0;
       const currentAvg = userData.avgRating ?? 0;
       const newCount = currentCount + 1;
-      const newAvg = (currentAvg * currentCount + rating) / newCount;
+      const newAvg = (currentAvg * currentCount + ratingNum) / newCount;
       tx.update(userRef, { avgRating: newAvg, reviewCount: newCount });
     });
 

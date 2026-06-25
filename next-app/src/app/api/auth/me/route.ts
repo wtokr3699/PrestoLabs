@@ -33,9 +33,20 @@ export async function PATCH(req: NextRequest) {
       "companyName", "businessField",
     ];
 
-    // 일반 사용자는 admin 역할로 변경 불가
-    if ("role" in body && !isSelfAssignableRole(body.role)) {
-      return apiError("유효하지 않은 역할입니다.", 400);
+    const snap = await adminDb.collection("users").doc(uid).get();
+    const current = snap.data() ?? {};
+
+    // 역할 검증
+    if ("role" in body) {
+      // admin 등 자기지정 불가 역할로 변경 불가
+      if (!isSelfAssignableRole(body.role)) {
+        return apiError("유효하지 않은 역할입니다.", 400);
+      }
+      // 이미 역할이 설정된 사용자는 역할 전환 불가 (자기거래/무결성 깨짐 방지).
+      // 소셜 가입 후 최초 역할 선택(current.role 이 없음)은 허용.
+      if (current.role && current.role !== body.role) {
+        return apiError("역할은 변경할 수 없습니다. 변경이 필요하면 관리자에게 문의해주세요.", 403);
+      }
     }
 
     const updates: Record<string, unknown> = { updatedAt: Timestamp.now() };
@@ -44,14 +55,14 @@ export async function PATCH(req: NextRequest) {
     }
 
     // profileComplete: 필수 필드 채워졌는지 확인
-    const snap = await adminDb.collection("users").doc(uid).get();
-    const current = snap.data() ?? {};
     const merged = { ...current, ...updates };
 
     if (merged.role === "freelancer") {
-      updates.profileComplete = !!(merged.bio && merged.skills?.length > 0);
+      updates.profileComplete = !!(
+        merged.bio && Array.isArray(merged.skills) && merged.skills.length > 0
+      );
     } else if (merged.role === "client") {
-      updates.profileComplete = !!(merged.bio);
+      updates.profileComplete = !!merged.bio;
     }
 
     // set with merge handles both existing and missing documents

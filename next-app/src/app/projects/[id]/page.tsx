@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { useAuth } from "@/contexts/AuthContext";
 import { Project, Application, PROJECT_STATUS_LABELS, PROJECT_CATEGORY_LABELS } from "@/types";
+import { formatBudget } from "@/lib/format";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import Link from "next/link";
@@ -454,7 +455,7 @@ export default function ProjectDetailPage() {
               <div className="flex justify-between">
                 <span className="text-gray-500">예산</span>
                 <span className="font-semibold">
-                  {project.budgetMin?.toLocaleString()}~{project.budgetMax?.toLocaleString()}원
+                  {formatBudget(project.budgetMin, project.budgetMax)}
                 </span>
               </div>
               <div className="flex justify-between">

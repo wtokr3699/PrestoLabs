@@ -12,11 +12,15 @@ export async function PATCH(req: NextRequest) {
       .where("read", "==", false)
       .get();
 
-    const batch = adminDb.batch();
-    for (const doc of snap.docs) {
-      batch.update(doc.ref, { read: true });
+    // Firestore 배치 쓰기 한도(500)를 넘지 않도록 청크 분할
+    const CHUNK = 450;
+    for (let i = 0; i < snap.docs.length; i += CHUNK) {
+      const batch = adminDb.batch();
+      for (const doc of snap.docs.slice(i, i + CHUNK)) {
+        batch.update(doc.ref, { read: true });
+      }
+      await batch.commit();
     }
-    await batch.commit();
 
     return apiOk({ updated: snap.size });
   } catch (err: unknown) {
