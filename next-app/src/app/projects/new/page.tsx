@@ -5,6 +5,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { ProjectCategory, PROJECT_CATEGORY_LABELS } from "@/types";
+import type { Estimate } from "@/lib/aiEstimate";
+import { formatBudget } from "@/lib/format";
 
 const SKILLS = ["React", "Next.js", "Vue", "Angular", "Node.js", "Python", "Java", "SQL", "AWS", "Docker", "Figma", "UI/UX", "SEO", "카피라이팅", "기타"];
 
@@ -15,6 +17,7 @@ export default function NewProjectPage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
+  const [aiResult, setAiResult] = useState<Estimate | null>(null);
   const [error, setError] = useState("");
 
   const [form, setForm] = useState({
@@ -75,37 +78,32 @@ export default function NewProjectPage() {
       return;
     }
     setAiLoading(true);
+    setAiResult(null);
     setError("");
     try {
       const token = await user!.getIdToken();
-      // 임시 프로젝트 생성 후 분석 (또는 별도 엔드포인트)
-      const createRes = await axios.post("/api/projects", {
-        ...form,
-        budgetMin: parseInt(form.budgetMin || "0"),
-        budgetMax: parseInt(form.budgetMax || "0"),
-        deadline: form.deadline || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      }, { headers: { Authorization: `Bearer ${token}` } });
-
-      const projectId = createRes.data.id;
-
-      await axios.post(`/api/projects/${projectId}/ai-analysis`, {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      // polling (간단하게 3초 후 결과 확인)
-      await new Promise((r) => setTimeout(r, 4000));
-      const res = await axios.get(`/api/projects/${projectId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (res.data.aiAnalysis) {
-        router.push(`/projects/${projectId}/edit`);
-      }
+      // 게시글 생성 없이 견적만 미리 산출 (등록은 마지막 "프로젝트 등록"에서만)
+      const res = await axios.post(
+        "/api/projects/estimate",
+        { description: form.description, category: form.category },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setAiResult(res.data.analysis as Estimate);
     } catch {
       setError("AI 분석 요청에 실패했습니다.");
     } finally {
       setAiLoading(false);
     }
+  }
+
+  function applyEstimateToBudget() {
+    if (!aiResult || aiResult.totalEstimate <= 0) return;
+    const base = aiResult.totalEstimate;
+    setForm((f) => ({
+      ...f,
+      budgetMin: String(Math.round((base * 0.8) / 10000) * 10000),
+      budgetMax: String(Math.round((base * 1.2) / 10000) * 10000),
+    }));
   }
 
   async function handleSubmit() {
@@ -243,8 +241,53 @@ export default function NewProjectPage() {
                 disabled={aiLoading}
                 className="px-4 py-2 rounded-lg bg-[#7c3aed] text-white text-sm font-medium hover:bg-purple-700 transition disabled:opacity-50"
               >
-                {aiLoading ? "분석 중..." : "AI 단가 분석 요청"}
+                {aiLoading ? "분석 중..." : aiResult ? "다시 분석" : "AI 단가 분석 요청"}
               </button>
+
+              {/* 분석 진행 안내 */}
+              {aiLoading && (
+                <p className="text-xs text-[#7c3aed] mt-3 animate-pulse">
+                  AI가 프로젝트를 분석하고 있어요… 잠시만 기다려주세요.
+                </p>
+              )}
+
+              {/* 분석 결과 (게시글은 생성되지 않음) */}
+              {aiResult && !aiLoading && (
+                <div className="mt-4 bg-white border border-purple-200 rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-gray-500">AI 예상 견적</span>
+                    <span className="text-base font-bold text-[#7c3aed]">
+                      약 {aiResult.totalEstimate.toLocaleString()}원
+                    </span>
+                  </div>
+                  <ul className="space-y-1 mb-3">
+                    {aiResult.features.map((f, i) => (
+                      <li key={i} className="flex justify-between text-xs text-gray-600">
+                        <span>{f.name}</span>
+                        <span>{f.estimatedPrice.toLocaleString()}원</span>
+                      </li>
+                    ))}
+                  </ul>
+                  {aiResult.report && (
+                    <p className="text-xs text-gray-500 leading-relaxed mb-3">{aiResult.report}</p>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={applyEstimateToBudget}
+                      className="px-3 py-1.5 rounded-lg bg-[#7c3aed] text-white text-xs font-medium hover:bg-purple-700 transition"
+                    >
+                      이 금액을 예산에 적용
+                    </button>
+                    <span className="text-[11px] text-gray-400">
+                      적용 시 {formatBudget(
+                        Math.round((aiResult.totalEstimate * 0.8) / 10000) * 10000,
+                        Math.round((aiResult.totalEstimate * 1.2) / 10000) * 10000
+                      )}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>

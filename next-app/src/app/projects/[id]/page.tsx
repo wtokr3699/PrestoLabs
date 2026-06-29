@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { useAuth } from "@/contexts/AuthContext";
 import { Project, Application, PROJECT_STATUS_LABELS, PROJECT_CATEGORY_LABELS } from "@/types";
@@ -40,10 +40,11 @@ function StarRating({ value, onChange }: { value: number; onChange?: (v: number)
   );
 }
 
-export default function ProjectDetailPage() {
+function ProjectDetailContent() {
   const { id } = useParams() as { id: string };
   const { user, profile } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [project, setProject] = useState<Project | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
@@ -52,6 +53,7 @@ export default function ProjectDetailPage() {
   const [showApplyForm, setShowApplyForm] = useState(false);
   const [applyForm, setApplyForm] = useState({ coverLetter: "", proposedBudget: "", estimatedDays: "" });
   const [applyLoading, setApplyLoading] = useState(false);
+  const [dismissedAutoApply, setDismissedAutoApply] = useState(false);
   const [acceptForm, setAcceptForm] = useState<{ appId: string; budget: string } | null>(null);
   const [error, setError] = useState("");
 
@@ -69,6 +71,12 @@ export default function ProjectDetailPage() {
   useEffect(() => {
     if (project?.status === "completed") fetchReviews();
   }, [project?.status]);
+
+  // 프로필 완성 후 ?apply=1 로 돌아오면 지원 폼 자동 열기 + 안내 (effect 없이 파생)
+  const wantApply = searchParams.get("apply") === "1";
+  const autoOpen = wantApply && !!profile?.profileComplete && !myApplication && !dismissedAutoApply;
+  const applyFormOpen = showApplyForm || autoOpen;
+  const applyHint = autoOpen && !showApplyForm;
 
   async function fetchProject() {
     try {
@@ -93,10 +101,25 @@ export default function ProjectDetailPage() {
     }
   }
 
+  // 지원 폼 열기 — 프로필 미완성이면 먼저 완성하도록 보낸 뒤, 돌아오면 자동 재개
+  function openApplyForm() {
+    if (!user) return;
+    if (!profile?.profileComplete) {
+      router.push(`/profile/complete?returnTo=${encodeURIComponent(`/projects/${id}?apply=1`)}`);
+      return;
+    }
+    setShowApplyForm(true);
+  }
+
+  function closeApplyForm() {
+    setShowApplyForm(false);
+    setDismissedAutoApply(true);
+  }
+
   async function handleApply() {
     if (!user) return;
     if (!profile?.profileComplete) {
-      router.push(`/profile/complete?returnTo=/projects/${id}`);
+      router.push(`/profile/complete?returnTo=${encodeURIComponent(`/projects/${id}?apply=1`)}`);
       return;
     }
     setApplyLoading(true);
@@ -471,7 +494,7 @@ export default function ProjectDetailPage() {
             <div className="mt-4 pt-4 border-t border-gray-100 space-y-2">
               {canApply && !myApplication && (
                 <button
-                  onClick={() => setShowApplyForm(true)}
+                  onClick={openApplyForm}
                   className="w-full py-3 rounded-xl bg-[#7c3aed] text-white font-medium text-sm hover:bg-purple-700 transition"
                 >
                   지원하기
@@ -527,11 +550,16 @@ export default function ProjectDetailPage() {
       </div>
 
       {/* 지원 폼 모달 */}
-      {showApplyForm && (
+      {applyFormOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setShowApplyForm(false)} />
+          <div className="absolute inset-0 bg-black/40" onClick={closeApplyForm} />
           <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6">
             <h2 className="font-bold text-lg mb-4">지원서 작성</h2>
+            {applyHint && (
+              <div className="mb-4 rounded-xl bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700">
+                ✓ 프로필이 완성됐어요! 이제 지원서를 작성하면 됩니다.
+              </div>
+            )}
             <div className="space-y-3">
               <textarea
                 value={applyForm.coverLetter}
@@ -558,7 +586,7 @@ export default function ProjectDetailPage() {
             {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
             <div className="flex gap-3 mt-4">
               <button
-                onClick={() => setShowApplyForm(false)}
+                onClick={closeApplyForm}
                 className="flex-1 py-3 rounded-xl border border-gray-300 text-sm text-gray-700"
               >
                 취소
@@ -575,5 +603,13 @@ export default function ProjectDetailPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ProjectDetailPage() {
+  return (
+    <Suspense fallback={null}>
+      <ProjectDetailContent />
+    </Suspense>
   );
 }
