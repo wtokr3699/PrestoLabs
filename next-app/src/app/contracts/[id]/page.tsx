@@ -74,8 +74,9 @@ export default function ContractDetailPage() {
         amount: res.data.amount,
         paymentId: res.data.paymentId,
       });
-    } catch {
-      alert("결제 초기화에 실패했습니다.");
+    } catch (err: unknown) {
+      const msg = axios.isAxiosError(err) ? err.response?.data?.error : null;
+      alert(msg ?? "결제 초기화에 실패했습니다.");
     } finally {
       setPayLoading(false);
     }
