@@ -51,10 +51,14 @@ export async function POST(req: NextRequest) {
     const isSandboxPayment = String(paymentKey).startsWith("sandbox_pk_");
 
     // 샌드박스 결제는 명시적 opt-in 플래그가 있고 운영 환경이 아닐 때만 허용.
-    // (NODE_ENV 만으로 판단하면 오설정 환경에서 무료 에스크로가 가능)
+    // Vercel은 Production/Preview 빌드 모두 NODE_ENV=production으로 고정하므로,
+    // Vercel이 제공하는 VERCEL_ENV(production/preview/development)로 운영 여부를 판단한다.
+    // (로컬처럼 VERCEL_ENV가 없는 경우에만 NODE_ENV로 대체 판단)
+    const isProductionDeploy = process.env.VERCEL_ENV
+      ? process.env.VERCEL_ENV === "production"
+      : process.env.NODE_ENV === "production";
     const sandboxAllowed =
-      process.env.ALLOW_SANDBOX_PAYMENTS === "true" &&
-      process.env.NODE_ENV !== "production";
+      process.env.ALLOW_SANDBOX_PAYMENTS === "true" && !isProductionDeploy;
     if (isSandboxPayment && !sandboxAllowed) {
       return apiError("Sandbox 결제는 허용되지 않은 환경입니다.", 403);
     }

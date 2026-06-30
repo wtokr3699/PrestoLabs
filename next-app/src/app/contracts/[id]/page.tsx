@@ -70,8 +70,12 @@ export default function ContractDetailPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (process.env.NODE_ENV === "production") {
-        // 운영 환경: 실제 Toss 결제창 호출
+      // NEXT_PUBLIC_ALLOW_SANDBOX_PAYMENTS는 UI 표시용 스위치일 뿐, 실제 우회 허용 여부는
+      // 서버의 ALLOW_SANDBOX_PAYMENTS + VERCEL_ENV 검사(payments/confirm)가 최종 결정한다.
+      const showMockPayment = process.env.NEXT_PUBLIC_ALLOW_SANDBOX_PAYMENTS === "true";
+
+      if (!showMockPayment) {
+        // 실제 Toss 결제창 호출
         const tossPayments = await loadTossPayments(
           process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!
         );
@@ -85,7 +89,7 @@ export default function ContractDetailPage() {
           failUrl: `${window.location.origin}/payments/fail`,
         });
       } else {
-        // 개발/프리뷰 환경: 목업 결제 모달 표시 (ALLOW_SANDBOX_PAYMENTS 필요)
+        // 목업 결제 모달 표시 (서버 ALLOW_SANDBOX_PAYMENTS 미설정/운영 환경이면 confirm 단계에서 403)
         setPayModal({
           orderId: res.data.orderId,
           amount: res.data.amount,
