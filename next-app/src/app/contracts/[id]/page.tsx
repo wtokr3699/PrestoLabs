@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
-import { loadTossPayments, ANONYMOUS } from "@tosspayments/tosspayments-sdk";
 import { useAuth } from "@/contexts/AuthContext";
 import { Contract } from "@/types";
 import { Timestamp } from "firebase/firestore";
@@ -19,6 +18,11 @@ export default function ContractDetailPage() {
   const [payLoading, setPayLoading] = useState(false);
   const [deliveryLoading, setDeliveryLoading] = useState(false);
   const [approveLoading, setApproveLoading] = useState(false);
+
+  // 목업 결제 모달 상태 (실제 PG 미연동)
+  const [payModal, setPayModal] = useState<{ orderId: string; amount: number; paymentId: string } | null>(null);
+  const [payConfirming, setPayConfirming] = useState(false);
+  const [payError, setPayError] = useState("");
 
   useEffect(() => { fetchContract(); }, [id]);
 
@@ -57,30 +61,43 @@ export default function ContractDetailPage() {
   async function handlePay() {
     if (!user || !contract) return;
     setPayLoading(true);
+    setPayError("");
     try {
       const token = await user.getIdToken();
       // 서버에서 주문 ID + 결제 레코드 생성
       const res = await axios.post("/api/payments/initiate", { contractId: id }, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      // Toss SDK로 결제창 호출
-      const tossPayments = await loadTossPayments(
-        process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!
-      );
-      const payment = tossPayments.payment({ customerKey: ANONYMOUS });
-      await payment.requestPayment({
-        method: "CARD",
-        amount: { value: res.data.amount, currency: "KRW" },
+      // 실제 PG 대신 목업 결제 모달 표시
+      setPayModal({
         orderId: res.data.orderId,
-        orderName: "WorkBridge 에스크로 결제",
-        successUrl: `${window.location.origin}/payments/success?paymentId=${res.data.paymentId}`,
-        failUrl: `${window.location.origin}/payments/fail`,
+        amount: res.data.amount,
+        paymentId: res.data.paymentId,
       });
     } catch {
       alert("결제 초기화에 실패했습니다.");
     } finally {
       setPayLoading(false);
+    }
+  }
+
+  async function confirmMockPayment() {
+    if (!user || !payModal) return;
+    setPayConfirming(true);
+    setPayError("");
+    try {
+      const token = await user.getIdToken();
+      // sandbox paymentKey 로 confirm (서버에서 ALLOW_SANDBOX_PAYMENTS 검증)
+      await axios.post("/api/payments/confirm", {
+        paymentKey: `sandbox_pk_${Date.now()}`,
+        orderId: payModal.orderId,
+        amount: payModal.amount,
+      }, { headers: { Authorization: `Bearer ${token}` } });
+      router.push(`/payments/success?paymentId=${payModal.paymentId}`);
+    } catch (err: unknown) {
+      const msg = axios.isAxiosError(err) ? err.response?.data?.error : null;
+      setPayError(msg ?? "결제에 실패했습니다.");
+      setPayConfirming(false);
     }
   }
 
@@ -232,6 +249,59 @@ export default function ContractDetailPage() {
           >
             {approveLoading ? "처리 중..." : "완료 승인 및 정산"}
           </button>
+        </div>
+      )}
+
+      {/* 목업 결제 모달 (실제 PG 미연동) */}
+      {payModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => { if (!payConfirming) setPayModal(null); }}
+          />
+          <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 overflow-hidden">
+            <div className="bg-[#7c3aed] px-5 py-4 text-white flex items-center justify-between">
+              <span className="font-semibold">결제하기</span>
+              <span className="text-[11px] bg-white/20 px-2 py-0.5 rounded-full">테스트 결제</span>
+            </div>
+            <div className="p-5 space-y-4">
+              <div className="text-center">
+                <p className="text-xs text-gray-500">결제 금액</p>
+                <p className="text-2xl font-bold text-gray-900">{payModal.amount.toLocaleString()}원</p>
+              </div>
+              <div className="bg-gray-50 rounded-xl p-3 text-xs space-y-1">
+                <div className="flex justify-between"><span className="text-gray-500">주문명</span><span>WorkBridge 에스크로 결제</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">주문번호</span><span className="font-mono">{payModal.orderId}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">결제수단</span><span>카드 (테스트)</span></div>
+              </div>
+              {/* 카드 입력 흉내 (데모용, 비활성) */}
+              <div className="border border-gray-200 rounded-xl p-3 space-y-2 opacity-70">
+                <div className="h-9 rounded-lg bg-gray-100 flex items-center px-3 text-xs text-gray-400">0000 - 0000 - 0000 - 0000</div>
+                <div className="flex gap-2">
+                  <div className="flex-1 h-9 rounded-lg bg-gray-100 flex items-center px-3 text-xs text-gray-400">MM / YY</div>
+                  <div className="w-20 h-9 rounded-lg bg-gray-100 flex items-center px-3 text-xs text-gray-400">CVC</div>
+                </div>
+              </div>
+              <p className="text-[11px] text-gray-400 text-center">실제 결제가 발생하지 않는 데모 결제창입니다.</p>
+              {payError && <p className="text-red-500 text-xs text-center">{payError}</p>}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setPayModal(null)}
+                  disabled={payConfirming}
+                  className="flex-1 py-3 rounded-xl border border-gray-300 text-gray-600 text-sm font-medium hover:bg-gray-50 transition disabled:opacity-50"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={confirmMockPayment}
+                  disabled={payConfirming}
+                  className="flex-1 py-3 rounded-xl bg-[#7c3aed] text-white text-sm font-medium hover:bg-purple-700 transition disabled:opacity-50"
+                >
+                  {payConfirming ? "처리 중..." : `${payModal.amount.toLocaleString()}원 결제`}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
