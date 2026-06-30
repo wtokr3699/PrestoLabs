@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
+import { loadTossPayments, ANONYMOUS } from "@tosspayments/tosspayments-sdk";
 import { useAuth } from "@/contexts/AuthContext";
 import { Contract } from "@/types";
 import { Timestamp } from "firebase/firestore";
@@ -19,7 +20,7 @@ export default function ContractDetailPage() {
   const [deliveryLoading, setDeliveryLoading] = useState(false);
   const [approveLoading, setApproveLoading] = useState(false);
 
-  // 목업 결제 모달 상태 (실제 PG 미연동)
+  // 목업 결제 모달 상태 (운영 환경에서는 사용하지 않음 - 실제 Toss 결제창으로 진행)
   const [payModal, setPayModal] = useState<{ orderId: string; amount: number; paymentId: string } | null>(null);
   const [payConfirming, setPayConfirming] = useState(false);
   const [payError, setPayError] = useState("");
@@ -68,12 +69,29 @@ export default function ContractDetailPage() {
       const res = await axios.post("/api/payments/initiate", { contractId: id }, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      // 실제 PG 대신 목업 결제 모달 표시
-      setPayModal({
-        orderId: res.data.orderId,
-        amount: res.data.amount,
-        paymentId: res.data.paymentId,
-      });
+
+      if (process.env.NODE_ENV === "production") {
+        // 운영 환경: 실제 Toss 결제창 호출
+        const tossPayments = await loadTossPayments(
+          process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!
+        );
+        const payment = tossPayments.payment({ customerKey: ANONYMOUS });
+        await payment.requestPayment({
+          method: "CARD",
+          amount: { value: res.data.amount, currency: "KRW" },
+          orderId: res.data.orderId,
+          orderName: "WorkBridge 에스크로 결제",
+          successUrl: `${window.location.origin}/payments/success?paymentId=${res.data.paymentId}`,
+          failUrl: `${window.location.origin}/payments/fail`,
+        });
+      } else {
+        // 개발/프리뷰 환경: 목업 결제 모달 표시 (ALLOW_SANDBOX_PAYMENTS 필요)
+        setPayModal({
+          orderId: res.data.orderId,
+          amount: res.data.amount,
+          paymentId: res.data.paymentId,
+        });
+      }
     } catch {
       alert("결제 초기화에 실패했습니다.");
     } finally {

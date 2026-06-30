@@ -50,12 +50,13 @@ export async function POST(req: NextRequest) {
 
     const isSandboxPayment = String(paymentKey).startsWith("sandbox_pk_");
 
-    // 샌드박스(목업) 결제는 명시적 opt-in 플래그가 켜진 경우에만 허용.
-    // 기본값(미설정)은 모든 환경에서 차단 → 실제 PG 연동 시 이 플래그를 끄면 무료 에스크로 불가.
-    // (데모/발표용으로 결제 흐름을 동작시키려면 ALLOW_SANDBOX_PAYMENTS=true)
-    const sandboxAllowed = process.env.ALLOW_SANDBOX_PAYMENTS === "true";
+    // 샌드박스 결제는 명시적 opt-in 플래그가 있고 운영 환경이 아닐 때만 허용.
+    // (NODE_ENV 만으로 판단하면 오설정 환경에서 무료 에스크로가 가능)
+    const sandboxAllowed =
+      process.env.ALLOW_SANDBOX_PAYMENTS === "true" &&
+      process.env.NODE_ENV !== "production";
     if (isSandboxPayment && !sandboxAllowed) {
-      return apiError("Sandbox 결제는 허용되지 않은 환경입니다. (ALLOW_SANDBOX_PAYMENTS 미설정)", 403);
+      return apiError("Sandbox 결제는 허용되지 않은 환경입니다.", 403);
     }
 
     if (!isSandboxPayment) {
